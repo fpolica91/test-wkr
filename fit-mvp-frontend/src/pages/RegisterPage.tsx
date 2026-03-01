@@ -57,115 +57,125 @@ const RegisterPage = () => {
 
   return (
     <TurnstileGate>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 p-4">
-        <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Dumbbell className="h-12 w-12 text-blue-600" />
-          </div>
-          <CardTitle className="text-2xl">Join FitCoach</CardTitle>
-          <CardDescription>
-            Create your account to start your fitness journey
-          </CardDescription>
-        </CardHeader>
-        
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username *</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="Choose a username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                disabled={isLoading}
-              />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 p-4 py-8">
+        <Card className="w-full max-w-md touch-manipulation">
+          <CardHeader className="text-center pb-4">
+            <div className="flex justify-center mb-3 md:mb-4">
+              <div className="h-14 w-14 md:h-16 md:w-16 rounded-full bg-blue-100 flex items-center justify-center">
+                <Dumbbell className="h-8 w-8 md:h-10 md:w-10 text-blue-600" />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email (optional)</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your.email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="At least 6 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password *</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="fitnessLevel">Fitness Level *</Label>
-              <Select 
-                value={fitnessLevel} 
-                onValueChange={(value: FitnessLevel) => setFitnessLevel(value)}
-                disabled={isLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your fitness level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {fitnessLevels.map((level) => (
-                    <SelectItem key={level.value} value={level.value}>
-                      <div>
-                        <div className="font-medium">{level.label}</div>
-                        <div className="text-xs text-gray-500">{level.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
+            <CardTitle className="text-xl md:text-2xl">Join FitCoach</CardTitle>
+            <CardDescription className="text-sm md:text-base">
+              Create your account to start your fitness journey
+            </CardDescription>
+          </CardHeader>
           
-          <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isLoading}
-            >
-              {isLoading ? 'Creating account...' : 'Create Account'}
-            </Button>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4 md:space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm md:text-base">Username *</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Choose a username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="h-11 md:h-12 text-base"
+                  autoComplete="username"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm md:text-base">Email (optional)</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your.email@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="h-11 md:h-12 text-base"
+                  autoComplete="email"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm md:text-base">Password *</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="At least 6 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="h-11 md:h-12 text-base"
+                  autoComplete="new-password"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-sm md:text-base">Confirm Password *</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="h-11 md:h-12 text-base"
+                  autoComplete="new-password"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="fitnessLevel" className="text-sm md:text-base">Fitness Level *</Label>
+                <Select 
+                  value={fitnessLevel} 
+                  onValueChange={(value: FitnessLevel) => setFitnessLevel(value)}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger className="h-11 md:h-12">
+                    <SelectValue placeholder="Select your fitness level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fitnessLevels.map((level) => (
+                      <SelectItem key={level.value} value={level.value}>
+                        <div className="py-1">
+                          <div className="font-medium">{level.label}</div>
+                          <div className="text-xs text-gray-500">{level.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
             
-            <div className="text-center text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link 
-                to="/login" 
-                className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+            <CardFooter className="flex flex-col space-y-3 md:space-y-4 pt-2">
+              <Button 
+                type="submit" 
+                className="w-full h-11 md:h-12 text-base" 
+                disabled={isLoading}
               >
-                Sign in
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
+                {isLoading ? 'Creating account...' : 'Create Account'}
+              </Button>
+              
+              <div className="text-center text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link 
+                  to="/login" 
+                  className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                >
+                  Sign in
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
         </Card>
       </div>
     </TurnstileGate>

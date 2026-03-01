@@ -35,66 +35,72 @@ const LoginPage = () => {
   return (
     <TurnstileGate>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 p-4">
-        <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Dumbbell className="h-12 w-12 text-blue-600" />
-          </div>
-          <CardTitle className="text-2xl">Welcome to FitCoach</CardTitle>
-          <CardDescription>
-            Sign in to your account to continue your fitness journey
-          </CardDescription>
-        </CardHeader>
-        
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                disabled={isLoading}
-              />
+        <Card className="w-full max-w-md touch-manipulation">
+          <CardHeader className="text-center pb-4">
+            <div className="flex justify-center mb-3 md:mb-4">
+              <div className="h-14 w-14 md:h-16 md:w-16 rounded-full bg-blue-100 flex items-center justify-center">
+                <Dumbbell className="h-8 w-8 md:h-10 md:w-10 text-blue-600" />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-          </CardContent>
+            <CardTitle className="text-xl md:text-2xl">Welcome to FitCoach</CardTitle>
+            <CardDescription className="text-sm md:text-base">
+              Sign in to continue your fitness journey
+            </CardDescription>
+          </CardHeader>
           
-          <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </Button>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4 md:space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm md:text-base">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="h-11 md:h-12 text-base"
+                  autoComplete="username"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm md:text-base">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="h-11 md:h-12 text-base"
+                  autoComplete="current-password"
+                />
+              </div>
+            </CardContent>
             
-            <div className="text-center text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link 
-                to="/register" 
-                className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+            <CardFooter className="flex flex-col space-y-3 md:space-y-4 pt-2">
+              <Button 
+                type="submit" 
+                className="w-full h-11 md:h-12 text-base" 
+                disabled={isLoading}
               >
-                Sign up
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
+                {isLoading ? 'Signing in...' : 'Sign In'}
+              </Button>
+              
+              <div className="text-center text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link 
+                  to="/register" 
+                  className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                >
+                  Sign up
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
         </Card>
       </div>
     </TurnstileGate>

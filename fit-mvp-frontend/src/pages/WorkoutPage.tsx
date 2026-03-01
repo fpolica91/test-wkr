@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import WorkoutCard from '../components/workout/WorkoutCard';
 import { useWorkouts } from '../hooks/useWorkouts';
 import type { LocationType } from '@fitness/api-client';
-import { Dumbbell, History, Sparkles, Home, Building2 } from 'lucide-react';
+import { Dumbbell, History, Sparkles, Home, Building2, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 const WorkoutPage = () => {
@@ -51,7 +51,6 @@ const WorkoutPage = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleStartWorkout = (_workoutId: string) => {
     toast.info('Starting workout timer! (Feature in development)');
-    // In a real app, you would navigate to a workout timer/session page
   };
 
   const handleToggleExercise = async (workoutId: string, exerciseId: string, completed: boolean) => {
@@ -63,38 +62,38 @@ const WorkoutPage = () => {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6 md:space-y-8">
+      {/* Header - Mobile Optimized */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Workouts</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900">Workouts</h1>
+        <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">
           Generate personalized workouts and track your progress
         </p>
       </div>
 
       {/* Generate Workout Section */}
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
         <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5" />
+          <Card className="touch-manipulation">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <Sparkles className="h-5 w-5 text-purple-500" />
                 Generate New Workout
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Get a personalized workout based on your goals and fitness level
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
+            <CardContent className="space-y-5">
+              <div className="space-y-3">
                 <div className="space-y-2">
-                  <Label htmlFor="location">Location Preference</Label>
-                   <Select 
+                  <Label htmlFor="location" className="text-sm md:text-base">Location Preference</Label>
+                  <Select 
                     value={locationType} 
                     onValueChange={(value: LocationType) => setLocationType(value)}
                     disabled={isGenerating}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 md:h-11">
                       <SelectValue placeholder="Select location preference" />
                     </SelectTrigger>
                     <SelectContent>
@@ -111,30 +110,30 @@ const WorkoutPage = () => {
                       })}
                     </SelectContent>
                   </Select>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs md:text-sm text-gray-500">
                     Choose where you'll be working out for equipment-specific exercises
                   </p>
                 </div>
 
                 <Separator />
 
-                <div className="rounded-lg bg-blue-50 p-4">
-                  <h4 className="font-semibold text-blue-800 mb-2">How it works:</h4>
-                  <ul className="space-y-2 text-blue-700">
+                <div className="rounded-lg bg-blue-50 p-3 md:p-4">
+                  <h4 className="font-semibold text-blue-800 mb-2 text-sm md:text-base">How it works:</h4>
+                  <ul className="space-y-2 text-blue-700 text-sm md:text-base">
                     <li className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <span className="text-blue-600 font-bold text-xs">1</span>
                       </div>
                       <span>Our AI analyzes your fitness level and goals</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <span className="text-blue-600 font-bold text-xs">2</span>
                       </div>
                       <span>Generates a balanced workout with 3-5 exercises</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <span className="text-blue-600 font-bold text-xs">3</span>
                       </div>
                       <span>Provides sets, reps, and rest times</span>
@@ -147,9 +146,9 @@ const WorkoutPage = () => {
                 onClick={handleGenerateWorkout} 
                 disabled={isGenerating}
                 size="lg"
-                className="w-full flex items-center gap-2"
+                className="w-full flex items-center gap-2 h-12 text-base"
               >
-                <Sparkles className="h-4 w-4" />
+                <Sparkles className="h-5 w-5" />
                 {isGenerating ? 'Generating...' : 'Generate Workout'}
               </Button>
             </CardContent>
@@ -157,15 +156,15 @@ const WorkoutPage = () => {
         </div>
 
         {/* Current Workout Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           {currentWorkout ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Dumbbell className="h-5 w-5" />
+            <Card className="touch-manipulation">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <Dumbbell className="h-4 w-4 md:h-5 md:w-5" />
                   Current Workout
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs md:text-sm">
                   Ready to start
                 </CardDescription>
               </CardHeader>
@@ -177,10 +176,10 @@ const WorkoutPage = () => {
                   onStart={handleStartWorkout}
                   onToggleExercise={handleToggleExercise}
                 />
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 space-y-2">
                   <Button 
                     onClick={() => handleStartWorkout(currentWorkout.id)}
-                    className="w-full"
+                    className="w-full h-11"
                   >
                     Start Workout
                   </Button>
@@ -188,7 +187,7 @@ const WorkoutPage = () => {
                     variant="outline"
                     onClick={() => handleCompleteWorkout(currentWorkout.id)}
                     disabled={isCompleting}
-                    className="w-full"
+                    className="w-full h-11"
                   >
                     {isCompleting ? 'Marking Complete...' : 'Mark Complete'}
                   </Button>
@@ -196,17 +195,17 @@ const WorkoutPage = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>No Active Workout</CardTitle>
-                <CardDescription>
+            <Card className="touch-manipulation">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base md:text-lg">No Active Workout</CardTitle>
+                <CardDescription className="text-xs md:text-sm">
                   Generate a workout to get started
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-6">
-                  <Dumbbell className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">
+                  <Dumbbell className="h-10 w-10 md:h-12 md:w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-600 text-sm md:text-base">
                     You don't have an active workout. Generate one to get started!
                   </p>
                 </div>
@@ -215,25 +214,25 @@ const WorkoutPage = () => {
           )}
 
           {/* Quick Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Workout Stats</CardTitle>
+          <Card className="touch-manipulation">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base md:text-lg">Workout Stats</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Completed Workouts</span>
-                  <span className="font-semibold">{completedWorkouts.length}</span>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-gray-600 text-sm md:text-base">Completed</span>
+                  <span className="font-semibold text-base md:text-lg">{completedWorkouts.length}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Minutes</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-gray-600 text-sm md:text-base">Total Minutes</span>
+                  <span className="font-semibold text-base md:text-lg">
                     {completedWorkouts.reduce((sum, w) => sum + (w.duration || 0), 0)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Calories</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-gray-600 text-sm md:text-base">Total Calories</span>
+                  <span className="font-semibold text-base md:text-lg">
                     {completedWorkouts.reduce((sum, w) => sum + (w.caloriesBurned || 0), 0)}
                   </span>
                 </div>
@@ -244,18 +243,19 @@ const WorkoutPage = () => {
       </div>
 
       {/* Workout History */}
-      <Tabs defaultValue="history" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="history" className="flex items-center gap-2">
+      <Tabs defaultValue="history" className="space-y-4 md:space-y-6">
+        <TabsList className="w-full md:w-auto">
+          <TabsTrigger value="history" className="flex items-center gap-2 flex-1 md:flex-initial justify-center">
             <History className="h-4 w-4" />
-            Workout History
+            <span className="hidden sm:inline">Workout History</span>
+            <span className="sm:hidden">History</span>
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="history" className="space-y-6">
+        <TabsContent value="history" className="space-y-4">
           {completedWorkouts.length > 0 ? (
-            <div className="space-y-6">
-              {completedWorkouts.map((workout) => (
+            <div className="space-y-4">
+              {completedWorkouts.slice(0, 5).map((workout) => (
                 <WorkoutCard 
                   key={workout.id} 
                   workout={workout}
@@ -263,16 +263,25 @@ const WorkoutPage = () => {
                   onToggleExercise={handleToggleExercise}
                 />
               ))}
+              {completedWorkouts.length > 5 && (
+                <button 
+                  onClick={() => toast.info('Full workout history coming soon!')}
+                  className="w-full py-3 text-sm text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1"
+                >
+                  View all {completedWorkouts.length} workouts
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              )}
             </div>
           ) : (
-            <Card>
+            <Card className="touch-manipulation">
               <CardContent className="pt-6">
-                <div className="text-center py-12">
-                  <History className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <div className="text-center py-10 md:py-12">
+                  <History className="h-12 w-12 md:h-16 md:w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">
                     No workout history yet
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-sm md:text-base text-gray-600">
                     Complete your first workout to see it here!
                   </p>
                 </div>
