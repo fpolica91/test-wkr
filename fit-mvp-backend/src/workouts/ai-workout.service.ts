@@ -178,8 +178,8 @@ Ensure locationType matches one of: HOME, GYM, BOTH.`;
         'DeepSeek API error:',
         axiosError.response?.data || axiosError.message,
       );
-      // Fallback to mock response
-      return this.mockAIResponse();
+
+      throw new InternalServerErrorException('Failed to call DeepSeek API');
     }
   }
 
