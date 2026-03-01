@@ -6,6 +6,7 @@ export type {
   FitnessLevel,
   GoalType,
   LocationType,
+  FocusArea,
   UserResponse,
   RegisterRequest,
   LoginRequest,

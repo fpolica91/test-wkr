@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import axios, { AxiosError } from 'axios';
-import type { LocationType } from '@fitness/api-client';
+import type { LocationType, FocusArea } from '@fitness/api-client';
 
 interface Exercise {
   name: string;
@@ -50,6 +50,7 @@ export class AIWorkoutService {
   async generateWorkout(
     userId: string,
     locationType?: LocationType,
+    focusArea?: FocusArea,
   ): Promise<WorkoutGenerationResult> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -90,6 +91,7 @@ export class AIWorkoutService {
       mappedGoals,
       locationType,
       recentExercises,
+      focusArea,
     );
 
     const aiResponse = await this.callDeepSeekAPI(prompt);
@@ -101,6 +103,7 @@ export class AIWorkoutService {
     goals: Array<{ goalType: string; targetValue?: number }>,
     locationType?: LocationType,
     recentExercises: string[] = [],
+    focusArea?: FocusArea,
   ): string {
     const goalDescriptions = goals
       .map(
@@ -251,18 +254,24 @@ Ensure locationType matches one of: HOME, GYM, BOTH.`;
       }
 
       // Validate and normalize each exercise
-      const normalizedExercises = workout.exercises.map((ex) => ({
-        name: String(ex.name),
-        description: ex.description ? String(ex.description) : undefined,
-        sets: Number(ex.sets),
-        reps: Number(ex.reps),
-        weight:
-          ex.weight === null || ex.weight === undefined
-            ? null
-            : String(ex.weight),
-        restTime: ex.restTime ? Number(ex.restTime) : undefined,
-        locationType: String(ex.locationType).toUpperCase() as LocationType,
-      }));
+      const normalizedExercises = workout.exercises.map((ex) => {
+        // Ensure sets and reps are valid positive integers
+        const sets = Math.max(1, Math.floor(Number(ex.sets)) || 3);
+        const reps = Math.max(1, Math.floor(Number(ex.reps)) || 10);
+        
+        return {
+          name: String(ex.name || 'Exercise'),
+          description: ex.description ? String(ex.description) : undefined,
+          sets,
+          reps,
+          weight:
+            ex.weight === null || ex.weight === undefined
+              ? null
+              : String(ex.weight),
+          restTime: ex.restTime ? Math.max(0, Math.floor(Number(ex.restTime))) : undefined,
+          locationType: String(ex.locationType).toUpperCase() as LocationType,
+        };
+      });
 
       return {
         ...workout,

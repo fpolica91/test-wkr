@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
-import type { WorkoutResponse as Workout, LocationType, ExerciseResponse } from '@fitness/api-client';
+import type { WorkoutResponse as Workout, LocationType, FocusArea, ExerciseResponse } from '@fitness/api-client';
 import { toast } from 'sonner';
 
 export const useWorkouts = () => {
@@ -24,8 +24,8 @@ export const useWorkouts = () => {
   });
 
   const generateWorkoutMutation = useMutation({
-    mutationFn: async (locationType?: string) => {
-      return api.generateWorkout(locationType as LocationType);
+    mutationFn: async ({ locationType, focusArea }: { locationType?: string; focusArea?: string }) => {
+      return api.generateWorkout(locationType as LocationType, focusArea as FocusArea);
     },
     onSuccess: (newWorkout) => {
       queryClient.setQueryData(['workouts'], (old: Workout[] = []) => {

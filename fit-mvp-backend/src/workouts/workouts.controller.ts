@@ -35,7 +35,8 @@ export class WorkoutsController {
   ) {
     const userId = req.user.id;
     const locationType = body?.locationType;
-    return this.workoutsService.generateWorkout(userId, locationType);
+    const focusArea = body?.focusArea;
+    return this.workoutsService.generateWorkout(userId, locationType, focusArea);
   }
 
   @Get('next')

@@ -3,12 +3,11 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Label } from '../components/ui/label';
-import { Separator } from '../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import WorkoutCard from '../components/workout/WorkoutCard';
 import { useWorkouts } from '../hooks/useWorkouts';
-import type { LocationType } from '@fitness/api-client';
-import { Dumbbell, History, Sparkles, Home, Building2, ChevronRight } from 'lucide-react';
+import type { LocationType, FocusArea } from '@fitness/api-client';
+import { Dumbbell, History, Sparkles, Home, Building2, ChevronRight, Target, Flame, Activity, DumbbellIcon, PersonStanding } from 'lucide-react';
 import { toast } from 'sonner';
 
 const WorkoutPage = () => {
@@ -23,15 +22,29 @@ const WorkoutPage = () => {
   const [isCompleting, setIsCompleting] = useState(false);
   
   const [locationType, setLocationType] = useState<LocationType>('GYM');
+  const [focusArea, setFocusArea] = useState<FocusArea>('BASE_ON_GOALS_AND_LATEST_WORKOUTS');
 
   const locationOptions = [
     { value: 'GYM', label: 'Gym', icon: Building2 },
     { value: 'HOME', label: 'Home', icon: Home },
   ];
 
+  const focusAreaOptions = [
+    { value: 'BASE_ON_GOALS_AND_LATEST_WORKOUTS', label: 'Auto (Based on Goals)', icon: Sparkles },
+    { value: 'FULL_BODY', label: 'Full Body', icon: Activity },
+    { value: 'CORE', label: 'Core', icon: Target },
+    { value: 'STAMINA', label: 'Stamina', icon: Flame },
+    { value: 'UPPER_BODY', label: 'Upper Body', icon: DumbbellIcon },
+    { value: 'LEGS', label: 'Legs', icon: PersonStanding },
+    { value: 'FLEXIBILITY', label: 'Flexibility', icon: Activity },
+  ];
+
   const handleGenerateWorkout = async () => {
     try {
-      await generateWorkout(locationType);
+      await generateWorkout({ 
+        locationType, 
+        focusArea 
+      });
     } catch (error) {
       console.error('Failed to generate workout:', error);
     }
@@ -115,31 +128,35 @@ const WorkoutPage = () => {
                   </p>
                 </div>
 
-                <Separator />
-
-                <div className="rounded-lg bg-blue-50 p-3 md:p-4">
-                  <h4 className="font-semibold text-blue-800 mb-2 text-sm md:text-base">How it works:</h4>
-                  <ul className="space-y-2 text-blue-700 text-sm md:text-base">
-                    <li className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-blue-600 font-bold text-xs">1</span>
-                      </div>
-                      <span>Our AI analyzes your fitness level and goals</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-blue-600 font-bold text-xs">2</span>
-                      </div>
-                      <span>Generates a balanced workout with 3-5 exercises</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-blue-600 font-bold text-xs">3</span>
-                      </div>
-                      <span>Provides sets, reps, and rest times</span>
-                    </li>
-                  </ul>
+                <div className="space-y-2">
+                  <Label htmlFor="focus-area" className="text-sm md:text-base">Focus Area (Optional)</Label>
+                  <Select 
+                    value={focusArea} 
+                    onValueChange={(value: FocusArea) => setFocusArea(value)}
+                    disabled={isGenerating}
+                  >
+                    <SelectTrigger className="h-10 md:h-11">
+                      <SelectValue placeholder="Select focus area" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {focusAreaOptions.map((option) => {
+                        const Icon = option.icon;
+                        return (
+                          <SelectItem key={option.value} value={option.value}>
+                            <div className="flex items-center gap-2">
+                              <Icon className="h-4 w-4" />
+                              <span>{option.label}</span>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs md:text-sm text-gray-500">
+                    Target a specific area or let AI decide based on your goals
+                  </p>
                 </div>
+
               </div>
 
               <Button 

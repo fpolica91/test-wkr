@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { api } from '../services/api';
+import { api, onAuthError } from '../services/api';
 import type { UserResponse, FitnessLevel } from '@fitness/api-client';
 
 
@@ -27,30 +27,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing token on mount
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('auth_user');
-    
-    if (storedToken) {
-      setToken(storedToken);
+    // Check for existing token on mount and validate it
+    const validateToken = async () => {
+      const storedToken = localStorage.getItem('auth_token');
       
-      if (storedUser) {
+      if (storedToken) {
+        api.setToken(storedToken);
         try {
-          const userData = JSON.parse(storedUser) as UserResponse;
-          // Validate user data isn't old mock data
-          if (userData.id === 'mock-id' || userData.username === 'User' || !userData.fitnessLevel) {
-            console.warn('Discarding stale mock user data');
-            localStorage.removeItem('auth_user');
-          } else {
-            setUser(userData);
-          }
+          // Validate token by fetching current user
+          const userData = await api.getCurrentUser();
+          setToken(storedToken);
+          setUser(userData);
+          localStorage.setItem('auth_user', JSON.stringify(userData));
         } catch (error) {
-          console.error('Failed to parse stored user data:', error);
+          // Token is invalid, clear it
+          console.warn('Stored token is invalid, clearing...');
+          api.clearToken();
+          localStorage.removeItem('auth_token');
           localStorage.removeItem('auth_user');
         }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+
+    validateToken();
+
+    // Listen for 401 auth errors from API
+    const unsubscribe = onAuthError(() => {
+      console.warn('Authentication error detected, logging out...');
+      logout();
+    });
+
+    return unsubscribe;
   }, []);
 
   const login = async (username: string, password: string) => {

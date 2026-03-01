@@ -19,12 +19,16 @@ import {
   Clock,
   Home,
   Building2,
-  ChevronRight
+  ChevronRight,
+  Activity,
+  Sparkles,
+  DumbbellIcon,
+  PersonStanding
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
-import type { LocationType } from '@fitness/api-client';
+import type { LocationType, FocusArea } from '@fitness/api-client';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -41,15 +45,29 @@ const DashboardPage = () => {
   
   const [_, setIsCompleting] = useState(false);
   const [locationType, setLocationType] = useState<LocationType>('GYM');
+  const [focusArea, setFocusArea] = useState<FocusArea>('BASE_ON_GOALS_AND_LATEST_WORKOUTS');
 
   const locationOptions = [
     { value: 'GYM', label: 'Gym', icon: Building2 },
     { value: 'HOME', label: 'Home', icon: Home },
   ];
 
+  const focusAreaOptions = [
+    { value: 'BASE_ON_GOALS_AND_LATEST_WORKOUTS', label: 'Auto (Based on Goals)', icon: Sparkles },
+    { value: 'FULL_BODY', label: 'Full Body', icon: Activity },
+    { value: 'CORE', label: 'Core', icon: Target },
+    { value: 'STAMINA', label: 'Stamina', icon: Flame },
+    { value: 'UPPER_BODY', label: 'Upper Body', icon: DumbbellIcon },
+    { value: 'LEGS', label: 'Legs', icon: PersonStanding },
+    { value: 'FLEXIBILITY', label: 'Flexibility', icon: Activity },
+  ];
+
   const handleGenerateWorkout = async () => {
     try {
-      await generateWorkout(locationType);
+      await generateWorkout({ 
+        locationType, 
+        focusArea 
+      });
     } catch (error) {
       console.error('Failed to generate workout:', error);
     }
@@ -156,8 +174,8 @@ const DashboardPage = () => {
               {currentWorkout ? 'Current Workout' : 'No Active Workout'}
             </h2>
             {!currentWorkout && (
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-                <div className="w-full sm:w-40">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                <div className="w-full sm:w-36">
                   <Label htmlFor="location" className="sr-only">Location</Label>
                   <Select 
                     value={locationType} 
@@ -165,10 +183,35 @@ const DashboardPage = () => {
                     disabled={isGenerating}
                   >
                     <SelectTrigger className="h-10 md:h-11">
-                      <SelectValue placeholder="Select location" />
+                      <SelectValue placeholder="Location" />
                     </SelectTrigger>
                     <SelectContent>
                       {locationOptions.map((option) => {
+                        const Icon = option.icon;
+                        return (
+                          <SelectItem key={option.value} value={option.value}>
+                            <div className="flex items-center gap-2">
+                              <Icon className="h-4 w-4" />
+                              <span>{option.label}</span>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-full sm:w-40">
+                  <Label htmlFor="focus-area" className="sr-only">Focus Area</Label>
+                  <Select 
+                    value={focusArea} 
+                    onValueChange={(value: FocusArea) => setFocusArea(value)}
+                    disabled={isGenerating}
+                  >
+                    <SelectTrigger className="h-10 md:h-11">
+                      <SelectValue placeholder="Focus (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {focusAreaOptions.map((option) => {
                         const Icon = option.icon;
                         return (
                           <SelectItem key={option.value} value={option.value}>
@@ -212,8 +255,8 @@ const DashboardPage = () => {
                   <p className="text-sm md:text-base text-gray-600 mb-6">
                     Generate a personalized workout based on your goals and fitness level.
                   </p>
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
-                    <div className="w-full sm:w-48">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-lg mx-auto">
+                    <div className="w-full sm:w-40">
                       <Label htmlFor="location-mobile" className="sr-only">Location</Label>
                       <Select 
                         value={locationType} 
@@ -221,10 +264,35 @@ const DashboardPage = () => {
                         disabled={isGenerating}
                       >
                         <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Select location" />
+                          <SelectValue placeholder="Location" />
                         </SelectTrigger>
                         <SelectContent>
                           {locationOptions.map((option) => {
+                            const Icon = option.icon;
+                            return (
+                              <SelectItem key={option.value} value={option.value}>
+                                <div className="flex items-center gap-2">
+                                  <Icon className="h-4 w-4" />
+                                  <span>{option.label}</span>
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="w-full sm:w-44">
+                      <Label htmlFor="focus-area-mobile" className="sr-only">Focus Area</Label>
+                      <Select 
+                        value={focusArea} 
+                        onValueChange={(value: FocusArea) => setFocusArea(value)}
+                        disabled={isGenerating}
+                      >
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Focus (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {focusAreaOptions.map((option) => {
                             const Icon = option.icon;
                             return (
                               <SelectItem key={option.value} value={option.value}>

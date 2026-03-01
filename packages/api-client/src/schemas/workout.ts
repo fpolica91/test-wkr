@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ExerciseResponseSchema } from './exercise';
+import { FocusAreaSchema } from './enums';
 
 // Base Workout schema
 const WorkoutBaseSchema = z.object({
@@ -28,6 +29,7 @@ export type WorkoutListResponse = z.infer<typeof WorkoutListResponseSchema>;
 // Generate workout request
 export const GenerateWorkoutRequestSchema = z.object({
   locationType: z.enum(['HOME', 'GYM', 'BOTH']).optional(),
+  focusArea: FocusAreaSchema.optional(),
 });
 export type GenerateWorkoutRequest = z.infer<typeof GenerateWorkoutRequestSchema>;
 

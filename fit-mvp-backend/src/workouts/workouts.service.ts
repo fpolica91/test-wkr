@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AIWorkoutService } from './ai-workout.service';
-import type { UpdateWorkoutRequest, LocationType } from '@fitness/api-client';
+import type { UpdateWorkoutRequest, LocationType, FocusArea } from '@fitness/api-client';
 
 @Injectable()
 export class WorkoutsService {
@@ -11,10 +11,11 @@ export class WorkoutsService {
     private aiWorkoutService: AIWorkoutService,
   ) {}
 
-  async generateWorkout(userId: string, locationType?: LocationType) {
+  async generateWorkout(userId: string, locationType?: LocationType, focusArea?: FocusArea) {
     const workoutData = await this.aiWorkoutService.generateWorkout(
       userId,
       locationType,
+      focusArea,
     );
 
     const workout = await this.prisma.workout.create({

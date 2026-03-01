@@ -14,3 +14,14 @@ export type GoalType = z.infer<typeof GoalTypeSchema>;
 
 export const LocationTypeSchema = z.enum(['HOME', 'GYM', 'BOTH']);
 export type LocationType = z.infer<typeof LocationTypeSchema>;
+
+export const FocusAreaSchema = z.enum([
+  'FULL_BODY',
+  'CORE',
+  'STAMINA',
+  'UPPER_BODY',
+  'LEGS',
+  'FLEXIBILITY', 
+  'BASE_ON_GOALS_AND_LATEST_WORKOUTS',
+]);
+export type FocusArea = z.infer<typeof FocusAreaSchema>;

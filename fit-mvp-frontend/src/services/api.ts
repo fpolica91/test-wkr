@@ -1,6 +1,22 @@
-import type { RegisterRequest, LoginRequest, CreateGoalRequest, GoalResponse, WorkoutResponse, LocationType, AuthResponse, UserStatsResponse, UserResponse, UpdateUserRequest, UpdateFitnessLevelRequest, ExerciseResponse } from '@fitness/api-client';
+import type { RegisterRequest, LoginRequest, CreateGoalRequest, GoalResponse, WorkoutResponse, LocationType, FocusArea, AuthResponse, UserStatsResponse, UserResponse, UpdateUserRequest, UpdateFitnessLevelRequest, ExerciseResponse } from '@fitness/api-client';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+// Event emitter for auth errors
+type AuthErrorHandler = () => void;
+const authErrorHandlers: AuthErrorHandler[] = [];
+
+export const onAuthError = (handler: AuthErrorHandler) => {
+  authErrorHandlers.push(handler);
+  return () => {
+    const index = authErrorHandlers.indexOf(handler);
+    if (index > -1) authErrorHandlers.splice(index, 1);
+  };
+};
+
+const emitAuthError = () => {
+  authErrorHandlers.forEach(handler => handler());
+};
 
 type RegisterData = RegisterRequest;
 
@@ -46,6 +62,10 @@ class ApiService {
     });
 
     if (!response.ok) {
+      // Handle 401 Unauthorized - emit auth error to redirect to login
+      if (response.status === 401) {
+        emitAuthError();
+      }
       const error = await response.json().catch(() => ({ message: 'Network error' }));
       throw new Error(error.message || `HTTP ${response.status}`);
     }
@@ -113,11 +133,13 @@ class ApiService {
   }
 
   // Workout generation endpoints
-  async generateWorkout(locationType?: LocationType) {
-    const body = locationType ? { locationType } : undefined;
+  async generateWorkout(locationType?: LocationType, focusArea?: FocusArea) {
+    const body: { locationType?: LocationType; focusArea?: FocusArea } = {};
+    if (locationType) body.locationType = locationType;
+    if (focusArea) body.focusArea = focusArea;
     return this.request<WorkoutResponse>('/api/workouts/generate', {
       method: 'POST',
-      body: body ? JSON.stringify(body) : undefined,
+      body: JSON.stringify(body),
     });
   }
 
