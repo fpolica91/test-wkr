@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FitnessLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum GoalType {
+  BUILD_MUSCLE
+  LOSE_WEIGHT
+  BE_MORE_ATHLETIC
+  FLEXIBILITY
+  GENERAL_FITNESS
+}
+
+enum LocationType {
+  HOME
+  GYM
+  BOTH
+}
+
+model User {
+  id           String      @id @default(cuid())
+  username     String      @unique
+  email        String?
+  passwordHash String
+  fitnessLevel FitnessLevel
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  goals        Goal[]
+  workouts     Workout[]
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  goalType    GoalType
+  description String?
+  targetValue Float?
+  currentValue Float?
+  targetDate  DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Workout {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  name          String
+  duration      Int?      // minutes
+  caloriesBurned Float?
+  workoutDate   DateTime  @default(now())
+  notes         String?
+  completed     Boolean   @default(false)
+  exercises     Exercise[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Exercise {
+  id           String       @id @default(cuid())
+  workoutId    String?
+  workout      Workout?     @relation(fields: [workoutId], references: [id])
+  name         String
+  description  String?
+  sets         Int
+  reps         Int
+  weight       String?
+  restTime     Int?         // seconds
+  locationType LocationType
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
