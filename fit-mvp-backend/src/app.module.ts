@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { WorkoutsModule } from './workouts/workouts.module';
 import { GoalsModule } from './goals/goals.module';
+import { WeightModule } from './weight/weight.module';
 
 const serveStaticConfig = (): DynamicModule[] => {
   const frontendPath = join(__dirname, '..', '..', 'frontend-dist');
@@ -33,6 +34,7 @@ const serveStaticConfig = (): DynamicModule[] => {
     UsersModule,
     WorkoutsModule,
     GoalsModule,
+    WeightModule,
     ...serveStaticConfig(),
   ],
   controllers: [AppController],

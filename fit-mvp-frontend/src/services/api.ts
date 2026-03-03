@@ -1,4 +1,4 @@
-import type { RegisterRequest, LoginRequest, CreateGoalRequest, GoalResponse, WorkoutResponse, LocationType, FocusArea, AuthResponse, UserStatsResponse, UserResponse, UpdateUserRequest, UpdateFitnessLevelRequest, ExerciseResponse } from '@fitness/api-client';
+import type { RegisterRequest, LoginRequest, CreateGoalRequest, GoalResponse, WorkoutResponse, LocationType, FocusArea, AuthResponse, UserStatsResponse, UserResponse, UpdateUserRequest, UpdateFitnessLevelRequest, ExerciseResponse, CreateWeightEntryRequest, UpdateWeightEntryRequest, WeightEntryResponse, WeightEntryListResponse, WeightStatsResponse, UpdateWeightUnitRequest, WeightUnit } from '@fitness/api-client';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -166,6 +166,42 @@ class ApiService {
     return this.request<ExerciseResponse>(`/api/workouts/${workoutId}/exercises/${exerciseId}`, {
       method: 'PATCH',
       body: JSON.stringify({ completed }),
+    });
+  }
+
+  // Weight tracking endpoints
+  async getWeightEntries() {
+    return this.request<WeightEntryListResponse>('/api/weight');
+  }
+
+  async createWeightEntry(data: CreateWeightEntryRequest) {
+    return this.request<WeightEntryResponse>('/api/weight', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateWeightEntry(id: string, data: UpdateWeightEntryRequest) {
+    return this.request<WeightEntryResponse>(`/api/weight/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteWeightEntry(id: string) {
+    return this.request<WeightEntryResponse>(`/api/weight/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getWeightStats() {
+    return this.request<WeightStatsResponse>('/api/weight/stats');
+  }
+
+  async updateWeightUnit(data: UpdateWeightUnitRequest) {
+    return this.request<UserResponse>('/api/weight/preferences/unit', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     });
   }
 }

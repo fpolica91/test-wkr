@@ -32,16 +32,23 @@ enum LocationType {
   BOTH
 }
 
+enum WeightUnit {
+  KG
+  LB
+}
+
 model User {
   id           String      @id @default(cuid())
   username     String      @unique
   email        String?
   passwordHash String
   fitnessLevel FitnessLevel
+  userWeightUnit WeightUnit? @default(KG)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   goals        Goal[]
   workouts     Workout[]
+  weightEntries WeightEntry[]
 }
 
 model Goal {
@@ -88,4 +95,19 @@ model Exercise {
   completedAt  DateTime?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+}
+
+model WeightEntry {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weight    Float     // Always stored in kg for consistency
+  bodyFat   Float?    // Optional body fat percentage (0-100)
+  date      DateTime  @default(now())
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  @@index([userId, date])
+  @@map("weight_entries")
 }

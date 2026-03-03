@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
-import { LogOut, Home, Target, Dumbbell, User, Menu, X } from 'lucide-react';
+import { LogOut, Home, Target, Dumbbell, User, Menu, X, Scale } from 'lucide-react';
 import { useState } from 'react';
 
 const Layout = () => {
@@ -19,6 +19,7 @@ const Layout = () => {
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/goals', label: 'Goals', icon: Target },
     { path: '/workout', label: 'Workout', icon: Dumbbell },
+    { path: '/weight', label: 'Weight', icon: Scale },
     { path: '/profile', label: 'Profile', icon: User },
   ];
 

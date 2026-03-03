@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { toast } from 'sonner';
 
 import { TurnstileGate } from '../components/TurnstileGate';
-import type { FitnessLevel } from '@fitness/api-client';
+import type { FitnessLevel, WeightUnit } from '@fitness/api-client';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
@@ -17,6 +17,8 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel>('BEGINNER');
+  const [weight, setWeight] = useState<string>('');
+  const [weightUnit, setWeightUnit] = useState<WeightUnit>('KG');
   const [isLoading, setIsLoading] = useState(false);
   
   const { register } = useAuth();
@@ -38,7 +40,20 @@ const RegisterPage = () => {
     setIsLoading(true);
     
     try {
-      await register(username, password, fitnessLevel, email || undefined);
+      const registerData: any = {
+        username,
+        password,
+        fitnessLevel,
+      };
+      if (email) registerData.email = email;
+      if (weight.trim() !== '') {
+        const weightNum = parseFloat(weight);
+        if (!isNaN(weightNum) && weightNum > 0) {
+          registerData.weight = weightNum;
+          registerData.weightUnit = weightUnit;
+        }
+      }
+      await register(registerData);
       toast.success('Account created successfully!');
       navigate('/');
     } catch (error) {
@@ -151,7 +166,41 @@ const RegisterPage = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+               </div>
+
+               <div className="space-y-2">
+                 <Label htmlFor="weight" className="text-sm md:text-base">Weight (optional)</Label>
+                 <div className="grid grid-cols-3 gap-3">
+                   <div className="col-span-2">
+                     <Input
+                       id="weight"
+                       type="number"
+                       step="0.1"
+                       placeholder="e.g., 70.5"
+                       value={weight}
+                       onChange={(e) => setWeight(e.target.value)}
+                       disabled={isLoading}
+                       className="h-11 md:h-12 text-base"
+                     />
+                   </div>
+                   <div className="col-span-1">
+                     <Select 
+                       value={weightUnit} 
+                       onValueChange={(value: WeightUnit) => setWeightUnit(value)}
+                       disabled={isLoading}
+                     >
+                       <SelectTrigger className="h-11 md:h-12">
+                         <SelectValue placeholder="Unit" />
+                       </SelectTrigger>
+                       <SelectContent>
+                         <SelectItem value="KG">kg</SelectItem>
+                         <SelectItem value="LB">lb</SelectItem>
+                       </SelectContent>
+                     </Select>
+                   </div>
+                 </div>
+                 <p className="text-xs text-gray-500">You can add or update your weight later in your profile.</p>
+               </div>
             </CardContent>
             
             <CardFooter className="flex flex-col space-y-3 md:space-y-4 pt-2">

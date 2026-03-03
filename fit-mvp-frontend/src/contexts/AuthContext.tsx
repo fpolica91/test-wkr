@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { api, onAuthError } from '../services/api';
-import type { UserResponse, FitnessLevel } from '@fitness/api-client';
+import type { UserResponse, FitnessLevel, WeightUnit, RegisterRequest } from '@fitness/api-client';
 
 
 interface AuthContextType {
@@ -10,7 +10,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string, fitnessLevel: FitnessLevel, email?: string) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<UserResponse>) => void;
 }
@@ -86,10 +86,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (username: string, password: string, fitnessLevel: FitnessLevel, email?: string) => {
+  const register = async (data: RegisterRequest) => {
     try {
       setIsLoading(true);
-      const response = await api.register({ username, password, fitnessLevel, email });
+      const response = await api.register(data);
       api.setToken(response.access_token);
       setToken(response.access_token);
       

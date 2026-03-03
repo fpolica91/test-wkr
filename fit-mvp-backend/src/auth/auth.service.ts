@@ -31,8 +31,21 @@ export class AuthService {
         passwordHash: hashedPassword,
         email: registerDto.email,
         fitnessLevel: registerDto.fitnessLevel,
+        userWeightUnit: registerDto.userWeightUnit || 'KG',
       },
     });
+
+    // Create initial weight entry if provided
+    if (registerDto.initialWeight !== undefined) {
+      await this.prisma.weightEntry.create({
+        data: {
+          userId: user.id,
+          weight: registerDto.initialWeight,
+          bodyFat: registerDto.initialBodyFat,
+          date: new Date(),
+        },
+      });
+    }
 
     const payload = { sub: user.id, username: user.username };
     return {
@@ -42,6 +55,7 @@ export class AuthService {
         username: user.username,
         email: user.email,
         fitnessLevel: user.fitnessLevel,
+        userWeightUnit: user.userWeightUnit || 'KG',
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
       },
@@ -72,6 +86,7 @@ export class AuthService {
         username: user.username,
         email: user.email,
         fitnessLevel: user.fitnessLevel,
+        userWeightUnit: user.userWeightUnit || 'KG',
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
       },

@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import GoalsPage from './pages/GoalsPage';
 import WorkoutPage from './pages/WorkoutPage';
 import ProfilePage from './pages/ProfilePage';
+import WeightPage from './pages/WeightPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
@@ -32,10 +33,11 @@ function App() {
             
             <Route element={<ProtectedRoute />}>
                <Route element={<Layout />}>
-                 <Route path="/" element={<DashboardPage />} />
-                 <Route path="/goals" element={<GoalsPage />} />
-                 <Route path="/workout" element={<WorkoutPage />} />
-                 <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/goals" element={<GoalsPage />} />
+                  <Route path="/workout" element={<WorkoutPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/weight" element={<WeightPage />} />
                </Route>
             </Route>
             

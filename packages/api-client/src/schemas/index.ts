@@ -4,3 +4,4 @@ export * from './goal';
 export * from './exercise';
 export * from './workout';
 export * from './stats';
+export * from './weight';

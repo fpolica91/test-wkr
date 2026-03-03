@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FitnessLevelSchema } from './enums';
+import { FitnessLevelSchema, WeightUnitSchema } from './enums';
 
 // Base User schema (for internal use)
 const UserBaseSchema = z.object({
@@ -7,6 +7,7 @@ const UserBaseSchema = z.object({
   username: z.string(),
   email: z.string().email().optional(),
   fitnessLevel: FitnessLevelSchema,
+  userWeightUnit: WeightUnitSchema.optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
@@ -21,6 +22,9 @@ export const RegisterRequestSchema = z.object({
   password: z.string().min(6).max(100),
   email: z.string().email().optional(),
   fitnessLevel: FitnessLevelSchema,
+  initialWeight: z.number().min(0).max(1000).optional(),
+  initialBodyFat: z.number().min(0).max(100).optional(),
+  userWeightUnit: WeightUnitSchema.optional(),
 });
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
 
@@ -42,6 +46,7 @@ export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 export const UpdateUserRequestSchema = z.object({
   email: z.string().email().optional(),
   fitnessLevel: FitnessLevelSchema.optional(),
+  userWeightUnit: WeightUnitSchema.optional(),
 });
 export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>;
 
