@@ -73,6 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username: response.user.username,
         email: response.user.email,
         fitnessLevel: response.user.fitnessLevel,
+        userWeightUnit: response.user.userWeightUnit,
         createdAt: response.user.createdAt,
         updatedAt: response.user.updatedAt,
       };
@@ -98,6 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username: response.user.username,
         email: response.user.email,
         fitnessLevel: response.user.fitnessLevel,
+        userWeightUnit: response.user.userWeightUnit,
         createdAt: response.user.createdAt,
         updatedAt: response.user.updatedAt,
       };

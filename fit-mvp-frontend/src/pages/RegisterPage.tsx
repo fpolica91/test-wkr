@@ -18,7 +18,7 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel>('BEGINNER');
   const [weight, setWeight] = useState<string>('');
-  const [weightUnit, setWeightUnit] = useState<WeightUnit>('KG');
+  const [weightUnit, setWeightUnit] = useState<WeightUnit>('LB');
   const [isLoading, setIsLoading] = useState(false);
   
   const { register } = useAuth();
@@ -49,8 +49,13 @@ const RegisterPage = () => {
       if (weight.trim() !== '') {
         const weightNum = parseFloat(weight);
         if (!isNaN(weightNum) && weightNum > 0) {
-          registerData.weight = weightNum;
-          registerData.weightUnit = weightUnit;
+          // Convert to kg if unit is LB
+          let weightKg = weightNum;
+          if (weightUnit === 'LB') {
+            weightKg = weightNum * 0.45359237;
+          }
+          registerData.initialWeight = weightKg;
+          registerData.userWeightUnit = weightUnit;
         }
       }
       await register(registerData);

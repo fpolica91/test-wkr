@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Scale, PlusCircle, TrendingUp, Calendar, Trash2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { useWeight } from '../hooks/useWeight';
+import { useAuth } from '../contexts/AuthContext';
 import type { WeightEntryResponse, WeightUnit } from '@fitness/api-client';
 const formatDate = (date: Date | string) => {
   return new Date(date).toLocaleDateString('en-US', { 
@@ -27,7 +28,19 @@ const formatDateForInput = (date: Date | string) => {
 };
 
 const WeightPage = () => {
-  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const {
+    weightEntries,
+    weightStats,
+    isLoading,
+    createWeightEntry,
+    isCreating,
+    updateWeightEntry,
+    isUpdating,
+    deleteWeightEntry,
+    isDeleting,
+    updateWeightUnit,
+  } = useWeight();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<WeightEntryResponse | null>(null);
   const [weight, setWeight] = useState<string>('');
@@ -35,66 +48,7 @@ const WeightPage = () => {
   const [date, setDate] = useState<string>(formatDateForInput(new Date()));
   const [notes, setNotes] = useState<string>('');
   const [activeTab, setActiveTab] = useState('overview');
-
-  // Fetch weight entries
-  const { data: weightEntries = [], isLoading: isLoadingEntries } = useQuery({
-    queryKey: ['weightEntries'],
-    queryFn: () => api.getWeightEntries(),
-  });
-
-  // Fetch weight stats
-  const { data: weightStats, isLoading: isLoadingStats } = useQuery({
-    queryKey: ['weightStats'],
-    queryFn: () => api.getWeightStats(),
-  });
-
-  // Create weight entry mutation
-  const createMutation = useMutation({
-    mutationFn: (data: { weight: number; bodyFat?: number; date?: string; notes?: string }) =>
-      api.createWeightEntry(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weightEntries'] });
-      queryClient.invalidateQueries({ queryKey: ['weightStats'] });
-      setIsDialogOpen(false);
-      resetForm();
-      toast.success('Weight entry added successfully!');
-    },
-    onError: (error) => {
-      console.error('Failed to add weight entry:', error);
-      toast.error('Failed to add weight entry. Please try again.');
-    },
-  });
-
-  // Update weight entry mutation
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { weight?: number; bodyFat?: number; date?: string; notes?: string } }) =>
-      api.updateWeightEntry(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weightEntries'] });
-      queryClient.invalidateQueries({ queryKey: ['weightStats'] });
-      setEditingEntry(null);
-      resetForm();
-      toast.success('Weight entry updated successfully!');
-    },
-    onError: (error) => {
-      console.error('Failed to update weight entry:', error);
-      toast.error('Failed to update weight entry. Please try again.');
-    },
-  });
-
-  // Delete weight entry mutation
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.deleteWeightEntry(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weightEntries'] });
-      queryClient.invalidateQueries({ queryKey: ['weightStats'] });
-      toast.success('Weight entry deleted successfully!');
-    },
-    onError: (error) => {
-      console.error('Failed to delete weight entry:', error);
-      toast.error('Failed to delete weight entry. Please try again.');
-    },
-  });
+  const [unit, setUnit] = useState<WeightUnit>(user?.userWeightUnit || 'LB');
 
   const resetForm = () => {
     setWeight('');
@@ -102,6 +56,7 @@ const WeightPage = () => {
     setDate(formatDateForInput(new Date()));
     setNotes('');
     setEditingEntry(null);
+    setUnit(user?.userWeightUnit || 'LB');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -112,9 +67,24 @@ const WeightPage = () => {
       return;
     }
 
+    // Convert weight to kg if unit is LB
+    let weightKg = weightNum;
+    if (unit === 'LB') {
+      weightKg = weightNum * 0.45359237;
+    }
+
+    // Convert date to ISO string if provided
+    let dateIso = undefined;
+    if (date) {
+      const d = new Date(date);
+      if (!isNaN(d.getTime())) {
+        dateIso = d.toISOString();
+      }
+    }
+
     const data: any = {
-      weight: weightNum,
-      date: date || undefined,
+      weight: weightKg,
+      date: dateIso,
       notes: notes || undefined,
     };
 
@@ -126,15 +96,22 @@ const WeightPage = () => {
     }
 
     if (editingEntry) {
-      updateMutation.mutate({ id: editingEntry.id, data });
+      updateWeightEntry({ id: editingEntry.id, data });
     } else {
-      createMutation.mutate(data);
+      createWeightEntry(data);
     }
+    setIsDialogOpen(false);
+    resetForm();
   };
 
   const handleEdit = (entry: WeightEntryResponse) => {
     setEditingEntry(entry);
-    setWeight(entry.weight.toString());
+    // Convert weight from kg to display unit
+    let displayWeight = entry.weight;
+    if (unit === 'LB') {
+      displayWeight = entry.weight / 0.45359237;
+    }
+    setWeight(displayWeight.toFixed(1));
     setBodyFat(entry.bodyFat?.toString() || '');
     setDate(formatDateForInput(new Date(entry.date)));
     setNotes(entry.notes || '');
@@ -143,16 +120,35 @@ const WeightPage = () => {
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this weight entry?')) {
-      deleteMutation.mutate(id);
+      deleteWeightEntry(id);
     }
   };
 
-  const sortedEntries = [...weightEntries].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const sortedEntries = weightEntries; // already sorted by useWeight
+  const isMutating = isCreating || isUpdating || isDeleting;
 
-  const isLoading = isLoadingEntries || isLoadingStats;
-  const isMutating = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+  const formatWeight = (weightKg: number | undefined) => {
+    if (weightKg === undefined) return '--';
+    let display = weightKg;
+    let suffix = ' kg';
+    if (unit === 'LB') {
+      display = weightKg / 0.45359237;
+      suffix = ' lb';
+    }
+    return `${display.toFixed(1)}${suffix}`;
+  };
+
+  const formatWeightChange = (changeKg: number | undefined) => {
+    if (changeKg === undefined) return '--';
+    let display = changeKg;
+    let suffix = ' kg';
+    if (unit === 'LB') {
+      display = changeKg / 0.45359237;
+      suffix = ' lb';
+    }
+    const sign = changeKg > 0 ? '+' : '';
+    return `${sign}${display.toFixed(1)}${suffix}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -178,34 +174,53 @@ const WeightPage = () => {
               <DialogTitle>{editingEntry ? 'Edit Weight Entry' : 'Log Weight'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="weight">Weight (kg)*</Label>
-                  <Input
-                    id="weight"
-                    type="number"
-                    step="0.1"
-                    placeholder="e.g., 70.5"
-                    value={weight}
-                    onChange={(e) => setWeight(e.target.value)}
-                    required
-                    disabled={isMutating}
-                  />
-                  <p className="text-xs text-gray-500">Weight is stored in kilograms</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bodyFat">Body Fat % (optional)</Label>
-                  <Input
-                    id="bodyFat"
-                    type="number"
-                    step="0.1"
-                    placeholder="e.g., 18.5"
-                    value={bodyFat}
-                    onChange={(e) => setBodyFat(e.target.value)}
-                    disabled={isMutating}
-                  />
-                </div>
-              </div>
+               <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                   <Label htmlFor="weight">Weight*</Label>
+                   <div className="grid grid-cols-3 gap-3">
+                     <div className="col-span-2">
+                       <Input
+                         id="weight"
+                         type="number"
+                         step="0.1"
+                         placeholder={unit === 'KG' ? 'e.g., 70.5' : 'e.g., 150'}
+                         value={weight}
+                         onChange={(e) => setWeight(e.target.value)}
+                         required
+                         disabled={isMutating}
+                       />
+                     </div>
+                     <div className="col-span-1">
+                       <Select 
+                         value={unit} 
+                         onValueChange={(value: WeightUnit) => setUnit(value)}
+                         disabled={isMutating}
+                       >
+                         <SelectTrigger className="w-full">
+                           <SelectValue placeholder="Unit" />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="KG">kg</SelectItem>
+                           <SelectItem value="LB">lb</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
+                   </div>
+                   <p className="text-xs text-gray-500">Weight is stored in kilograms</p>
+                 </div>
+                 <div className="space-y-2">
+                   <Label htmlFor="bodyFat">Body Fat % (optional)</Label>
+                   <Input
+                     id="bodyFat"
+                     type="number"
+                     step="0.1"
+                     placeholder="e.g., 18.5"
+                     value={bodyFat}
+                     onChange={(e) => setBodyFat(e.target.value)}
+                     disabled={isMutating}
+                   />
+                 </div>
+               </div>
               <div className="space-y-2">
                 <Label htmlFor="date">Date</Label>
                 <Input
@@ -263,28 +278,25 @@ const WeightPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold">
-                  {weightStats?.currentWeight ? `${weightStats.currentWeight.toFixed(1)} kg` : '--'}
-                </div>
+                 <div className="text-2xl font-bold">
+                   {formatWeight(weightStats?.currentWeight)}
+                 </div>
                 <p className="text-sm text-gray-600">Current Weight</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold">
-                  {weightStats?.weightChange 
-                    ? `${weightStats.weightChange > 0 ? '+' : ''}${weightStats.weightChange.toFixed(1)} kg`
-                    : '--'
-                  }
-                </div>
+                 <div className="text-2xl font-bold">
+                   {formatWeightChange(weightStats?.weightChange)}
+                 </div>
                 <p className="text-sm text-gray-600">Change from Previous</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold">
-                  {weightStats?.sevenDayAverage ? `${weightStats.sevenDayAverage.toFixed(1)} kg` : '--'}
-                </div>
+                 <div className="text-2xl font-bold">
+                   {formatWeight(weightStats?.sevenDayAverage)}
+                 </div>
                 <p className="text-sm text-gray-600">7-Day Average</p>
               </CardContent>
             </Card>
@@ -334,7 +346,7 @@ const WeightPage = () => {
                           <Scale className="h-5 w-5 text-orange-600" />
                         </div>
                         <div>
-                          <div className="font-semibold text-lg">{entry.weight.toFixed(1)} kg</div>
+                           <div className="font-semibold text-lg">{formatWeight(entry.weight)}</div>
                           <div className="text-sm text-gray-600">
                             {formatDate(new Date(entry.date))}
                             {entry.bodyFat && ` • ${entry.bodyFat.toFixed(1)}% body fat`}
