@@ -132,7 +132,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                 size="sm" 
                 onClick={() => setShowFeedbackModal(true)}
                 disabled={isRegenerating}
-                className="flex-1 h-9 text-xs"
+                className="flex-1 h-9 text-xs cursor-pointer"
               >
                 <RefreshCw className="h-3.5 w-3.5 mr-1" />
                 Regenerate
@@ -145,7 +145,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                   size="sm"
                   onClick={() => onVote(workout.id, 'UPVOTE')}
                   disabled={isVoting}
-                  className="h-9 w-9 p-0"
+                  className="h-9 w-9 p-0 cursor-pointer"
                 >
                   <ThumbsUp className="h-4 w-4" />
                 </Button>
@@ -154,7 +154,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                   size="sm"
                   onClick={() => onVote(workout.id, 'DOWNVOTE')}
                   disabled={isVoting}
-                  className="h-9 w-9 p-0"
+                  className="h-9 w-9 p-0 cursor-pointer"
                 >
                   <ThumbsDown className="h-4 w-4" />
                 </Button>
@@ -383,36 +383,36 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
              </CardDescription>
            </div>
            <div className="flex items-center gap-2">
-             {!workout.completed && onRegenerate && (
-               <Button 
-                 variant="outline" 
-                 size="sm" 
-                 onClick={() => setShowFeedbackModal(true)}
-                 disabled={isRegenerating}
-                 className="text-xs h-8"
-               >
-                 <RefreshCw className="h-3.5 w-3.5 mr-1" />
-                 Regenerate
-               </Button>
-             )}
+              {!workout.completed && onRegenerate && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowFeedbackModal(true)}
+                  disabled={isRegenerating}
+                  className="text-xs h-8 cursor-pointer"
+                >
+                  <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                  Regenerate
+                </Button>
+              )}
              {onVote && (
                <div className="flex gap-1">
-                 <Button 
-                   variant={workout.vote === 'UPVOTE' ? 'default' : 'outline'} 
-                   size="sm"
-                   onClick={() => onVote(workout.id, 'UPVOTE')}
-                   disabled={isVoting}
-                   className="h-8 w-8 p-0"
-                 >
-                   <ThumbsUp className="h-4 w-4" />
-                 </Button>
-                 <Button 
-                   variant={workout.vote === 'DOWNVOTE' ? 'default' : 'outline'} 
-                   size="sm"
-                   onClick={() => onVote(workout.id, 'DOWNVOTE')}
-                   disabled={isVoting}
-                   className="h-8 w-8 p-0"
-                 >
+                  <Button 
+                    variant={workout.vote === 'UPVOTE' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => onVote(workout.id, 'UPVOTE')}
+                    disabled={isVoting}
+                    className="h-8 w-8 p-0 cursor-pointer"
+                  >
+                    <ThumbsUp className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant={workout.vote === 'DOWNVOTE' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => onVote(workout.id, 'DOWNVOTE')}
+                    disabled={isVoting}
+                    className="h-8 w-8 p-0 cursor-pointer"
+                  >
                    <ThumbsDown className="h-4 w-4" />
                  </Button>
                </div>
@@ -567,7 +567,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ exercise, workoutId, onTogg
               size="sm"
               onClick={() => onSwap(workoutId, exercise.id)}
               disabled={isSwapping}
-              className="h-7 px-2 text-xs"
+              className="h-7 px-2 text-xs cursor-pointer"
               title="Swap this exercise"
             >
               <RefreshCw className="h-3 w-3" />
