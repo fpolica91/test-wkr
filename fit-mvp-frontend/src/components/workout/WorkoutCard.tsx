@@ -132,7 +132,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                 size="sm" 
                 onClick={() => setShowFeedbackModal(true)}
                 disabled={isRegenerating}
-                className="flex-1 h-9 text-xs cursor-pointer"
+                className="flex-1 h-9 text-xs"
               >
                 <RefreshCw className="h-3.5 w-3.5 mr-1" />
                 Regenerate
@@ -145,7 +145,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                   size="sm"
                   onClick={() => onVote(workout.id, 'UPVOTE')}
                   disabled={isVoting}
-                  className="h-9 w-9 p-0 cursor-pointer"
+                  className="h-9 w-9 p-0"
                 >
                   <ThumbsUp className="h-4 w-4" />
                 </Button>
@@ -154,7 +154,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                   size="sm"
                   onClick={() => onVote(workout.id, 'DOWNVOTE')}
                   disabled={isVoting}
-                  className="h-9 w-9 p-0 cursor-pointer"
+                  className="h-9 w-9 p-0"
                 >
                   <ThumbsDown className="h-4 w-4" />
                 </Button>
@@ -389,7 +389,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                   size="sm" 
                   onClick={() => setShowFeedbackModal(true)}
                   disabled={isRegenerating}
-                  className="text-xs h-8 cursor-pointer"
+                  className="text-xs h-8"
                 >
                   <RefreshCw className="h-3.5 w-3.5 mr-1" />
                   Regenerate
@@ -402,7 +402,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                     size="sm"
                     onClick={() => onVote(workout.id, 'UPVOTE')}
                     disabled={isVoting}
-                    className="h-8 w-8 p-0 cursor-pointer"
+                    className="h-8 w-8 p-0"
                   >
                     <ThumbsUp className="h-4 w-4" />
                   </Button>
@@ -411,7 +411,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
                     size="sm"
                     onClick={() => onVote(workout.id, 'DOWNVOTE')}
                     disabled={isVoting}
-                    className="h-8 w-8 p-0 cursor-pointer"
+                    className="h-8 w-8 p-0"
                   >
                    <ThumbsDown className="h-4 w-4" />
                  </Button>
@@ -544,7 +544,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ exercise, workoutId, onTogg
           <div className="min-w-0 flex-1">
             <label 
               htmlFor={`exercise-${exercise.id}`}
-              className={`font-medium text-sm md:text-base break-words cursor-pointer ${exercise.completed ? 'line-through text-gray-500' : ''}`}
+              className={`font-medium text-sm md:text-base break-words ${exercise.completed ? 'line-through text-gray-500' : ''}`}
             >
               {exercise.name}
             </label>
@@ -567,7 +567,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ exercise, workoutId, onTogg
               size="sm"
               onClick={() => onSwap(workoutId, exercise.id)}
               disabled={isSwapping}
-              className="h-7 px-2 text-xs cursor-pointer"
+              className="h-7 px-2 text-xs"
               title="Swap this exercise"
             >
               <RefreshCw className="h-3 w-3" />
