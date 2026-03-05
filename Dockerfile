@@ -38,7 +38,7 @@ COPY --from=api-client-builder /app/packages/api-client/node_modules /app/packag
 
 WORKDIR /app/fit-mvp-backend
 COPY fit-mvp-backend/package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 COPY fit-mvp-backend/ ./
 RUN npx prisma generate
 RUN npm run build
@@ -54,7 +54,7 @@ COPY --from=api-client-builder /app/packages/api-client/package.json ./packages/
 
 # Copy backend from builder stage
 COPY --from=backend-builder /app/fit-mvp-backend/package*.json ./fit-mvp-backend/
-RUN cd fit-mvp-backend && npm ci --omit=dev --legacy-peer-deps
+RUN cd fit-mvp-backend && npm install --omit=dev --legacy-peer-deps
 
 # Move node_modules up and place api-client directly (file: creates broken symlinks)
 RUN mv fit-mvp-backend/node_modules ./node_modules && rm -rf fit-mvp-backend \
