@@ -32,14 +32,12 @@ const WeightPage = () => {
   const {
     weightEntries,
     weightStats,
-    isLoading,
     createWeightEntry,
     isCreating,
     updateWeightEntry,
     isUpdating,
     deleteWeightEntry,
     isDeleting,
-    updateWeightUnit,
   } = useWeight();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<WeightEntryResponse | null>(null);

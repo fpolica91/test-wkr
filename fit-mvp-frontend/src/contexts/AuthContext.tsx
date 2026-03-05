@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { api, onAuthError } from '../services/api';
-import type { UserResponse, FitnessLevel, WeightUnit, RegisterRequest } from '@fitness/api-client';
+import type { UserResponse, RegisterRequest } from '@fitness/api-client';
 
 
 interface AuthContextType {

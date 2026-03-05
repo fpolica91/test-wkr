@@ -6,7 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
-import type { RegisterRequest, LoginRequest } from '@fitness/api-client';
+import type { RegisterRequest, LoginRequest, WeightUnit } from '@fitness/api-client';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +14,13 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
+
+  private convertWeightToKg(weight: number, unit: WeightUnit): number {
+    if (unit === 'LB') {
+      return weight * 0.45359237;
+    }
+    return weight;
+  }
 
   async register(registerDto: RegisterRequest) {
     const existingUser = await this.prisma.user.findUnique({
