@@ -19,6 +19,11 @@ export enum LocationType {
   BOTH = 'BOTH',
 }
 
+export enum VoteType {
+  UPVOTE = 'UPVOTE',
+  DOWNVOTE = 'DOWNVOTE',
+}
+
 // User interface
 export interface User {
   id: string;
@@ -50,6 +55,9 @@ export interface Exercise {
   weight?: number;
   restTime?: number;
   locationType: LocationType;
+  completed: boolean;
+  completedAt?: string | null;
+  votedDown?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -64,6 +72,8 @@ export interface Workout {
   workoutDate: string;
   notes?: string;
   completed: boolean;
+  vote?: VoteType | null;
+  feedback?: string | null;
   exercises: Exercise[];
   createdAt: string;
   updatedAt: string;

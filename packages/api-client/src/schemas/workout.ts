@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ExerciseResponseSchema } from './exercise';
-import { FocusAreaSchema } from './enums';
+import { FocusAreaSchema, VoteTypeSchema } from './enums';
 
 // Base Workout schema
 const WorkoutBaseSchema = z.object({
@@ -12,6 +12,8 @@ const WorkoutBaseSchema = z.object({
   workoutDate: z.string().datetime(),
   notes: z.string().optional(),
   completed: z.boolean(),
+  vote: VoteTypeSchema.optional(),
+  feedback: z.string().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

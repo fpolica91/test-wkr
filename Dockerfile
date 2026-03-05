@@ -6,7 +6,6 @@ COPY packages/api-client/package*.json ./
 RUN npm ci
 COPY packages/api-client/ ./
 RUN npm run build
-
 # Stage 2: Build frontend
 FROM node:20-alpine AS frontend-builder
 
@@ -39,7 +38,7 @@ COPY --from=api-client-builder /app/packages/api-client/node_modules /app/packag
 
 WORKDIR /app/fit-mvp-backend
 COPY fit-mvp-backend/package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 COPY fit-mvp-backend/ ./
 RUN npx prisma generate
 RUN npm run build
@@ -53,9 +52,9 @@ WORKDIR /app
 COPY --from=api-client-builder /app/packages/api-client/dist ./packages/api-client/dist
 COPY --from=api-client-builder /app/packages/api-client/package.json ./packages/api-client/
 
-# Install prod deps from fit-mvp-backend dir to resolve file: refs
-COPY fit-mvp-backend/package*.json ./fit-mvp-backend/
-RUN cd fit-mvp-backend && npm ci --omit=dev --legacy-peer-deps
+# Copy backend from builder stage
+COPY --from=backend-builder /app/fit-mvp-backend/package*.json ./fit-mvp-backend/
+RUN cd fit-mvp-backend && npm install --omit=dev --legacy-peer-deps
 
 # Move node_modules up and place api-client directly (file: creates broken symlinks)
 RUN mv fit-mvp-backend/node_modules ./node_modules && rm -rf fit-mvp-backend \
@@ -69,8 +68,8 @@ COPY --from=backend-builder /app/fit-mvp-backend/dist ./dist
 COPY --from=frontend-builder /app/fit-mvp-frontend/dist ./frontend-dist
 
 # Copy Prisma schema, migrations, and config
-COPY fit-mvp-backend/prisma ./prisma
-COPY fit-mvp-backend/prisma.config.ts ./prisma.config.ts
+COPY --from=backend-builder /app/fit-mvp-backend/prisma ./prisma
+COPY --from=backend-builder /app/fit-mvp-backend/prisma.config.ts ./prisma.config.ts
 RUN npx prisma generate
 
 # Entrypoint: migrate then start

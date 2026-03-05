@@ -19,6 +19,8 @@ import {
   type GenerateWorkoutRequest,
   type UpdateWorkoutRequest,
   type ToggleExerciseCompletionRequest,
+  type LocationType,
+  type FocusArea,
 } from '@fitness/api-client';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { AuthenticatedRequest } from '../common/types/request';
@@ -104,5 +106,49 @@ export class WorkoutsController {
   remove(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     const userId = req.user.id;
     return this.workoutsService.remove(userId, id);
+  }
+
+  @Patch(':workoutId/exercises/:exerciseId/swap')
+  swapExercise(
+    @Request() req: AuthenticatedRequest,
+    @Param('workoutId') workoutId: string,
+    @Param('exerciseId') exerciseId: string,
+    @Query('locationType') locationType?: string,
+    @Query('focusArea') focusArea?: string,
+  ) {
+    const userId = req.user.id;
+    return this.workoutsService.swapExercise(
+      userId,
+      workoutId,
+      exerciseId,
+      locationType as LocationType | undefined,
+      focusArea as FocusArea | undefined,
+    );
+  }
+
+  @Patch(':id/regenerate')
+  regenerateWorkout(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { feedback: string; locationType?: string; focusArea?: string },
+  ) {
+    const userId = req.user.id;
+    return this.workoutsService.regenerateWorkout(
+      userId,
+      id,
+      body.feedback,
+      body.locationType as LocationType | undefined,
+      body.focusArea as FocusArea | undefined,
+    );
+  }
+
+  @Patch(':id/vote')
+  voteWorkout(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { vote: 'UPVOTE' | 'DOWNVOTE' },
+  ) {
+    const userId = req.user.id;
+    return this.workoutsService.voteWorkout(userId, id, body.vote);
   }
 }

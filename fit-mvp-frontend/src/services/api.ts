@@ -202,6 +202,28 @@ class ApiService {
     return this.request<UserResponse>('/api/weight/preferences/unit', {
       method: 'PATCH',
       body: JSON.stringify(data),
+  async swapExercise(workoutId: string, exerciseId: string, locationType?: LocationType, focusArea?: FocusArea) {
+    const params = new URLSearchParams();
+    if (locationType) params.set('locationType', locationType);
+    if (focusArea) params.set('focusArea', focusArea);
+    const queryString = params.toString();
+    return this.request<WorkoutResponse>(
+      `/api/workouts/${workoutId}/exercises/${exerciseId}/swap${queryString ? `?${queryString}` : ''}`,
+      { method: 'PATCH' }
+    );
+  }
+
+  async regenerateWorkout(workoutId: string, feedback: string, locationType?: LocationType, focusArea?: FocusArea) {
+    return this.request<WorkoutResponse>(`/api/workouts/${workoutId}/regenerate`, {
+      method: 'PATCH',
+      body: JSON.stringify({ feedback, locationType, focusArea }),
+    });
+  }
+
+  async voteWorkout(workoutId: string, vote: 'UPVOTE' | 'DOWNVOTE') {
+    return this.request<WorkoutResponse>(`/api/workouts/${workoutId}/vote`, {
+      method: 'PATCH',
+      body: JSON.stringify({ vote }),
     });
   }
 }

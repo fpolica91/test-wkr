@@ -94,6 +94,75 @@ export const useWorkouts = () => {
     },
   });
 
+  const swapExerciseMutation = useMutation({
+    mutationFn: async ({ workoutId, exerciseId, locationType, focusArea }: { 
+      workoutId: string; 
+      exerciseId: string; 
+      locationType?: string;
+      focusArea?: string;
+    }) => {
+      return api.swapExercise(workoutId, exerciseId, locationType as LocationType, focusArea as FocusArea);
+    },
+    onSuccess: (updatedWorkout: Workout) => {
+      queryClient.setQueryData(['workouts'], (old: Workout[] = []) => {
+        return old.map(workout => 
+          workout.id === updatedWorkout.id 
+            ? updatedWorkout
+            : workout
+        );
+      });
+      toast.success('Exercise swapped!');
+    },
+    onError: (error) => {
+      toast.error('Failed to swap exercise');
+      console.error('Swap exercise error:', error);
+    },
+  });
+
+  const regenerateWorkoutMutation = useMutation({
+    mutationFn: async ({ workoutId, feedback, locationType, focusArea }: { 
+      workoutId: string; 
+      feedback: string;
+      locationType?: string;
+      focusArea?: string;
+    }) => {
+      return api.regenerateWorkout(workoutId, feedback, locationType as LocationType, focusArea as FocusArea);
+    },
+    onSuccess: (updatedWorkout: Workout) => {
+      queryClient.setQueryData(['workouts'], (old: Workout[] = []) => {
+        return old.map(workout => 
+          workout.id === updatedWorkout.id 
+            ? updatedWorkout
+            : workout
+        );
+      });
+      toast.success('Workout regenerated!');
+    },
+    onError: (error) => {
+      toast.error('Failed to regenerate workout');
+      console.error('Regenerate workout error:', error);
+    },
+  });
+
+  const voteWorkoutMutation = useMutation({
+    mutationFn: async ({ workoutId, vote }: { workoutId: string; vote: 'UPVOTE' | 'DOWNVOTE' }) => {
+      return api.voteWorkout(workoutId, vote);
+    },
+    onSuccess: (updatedWorkout: Workout) => {
+      queryClient.setQueryData(['workouts'], (old: Workout[] = []) => {
+        return old.map(workout => 
+          workout.id === updatedWorkout.id 
+            ? updatedWorkout
+            : workout
+        );
+      });
+    },
+    onError: (error) => {
+      toast.error('Failed to vote');
+      console.error('Vote workout error:', error);
+    },
+  });
+
   const currentWorkout = workouts.find(w => !w.completed);
   const completedWorkouts = workouts.filter(w => w.completed);
 
@@ -109,5 +178,11 @@ export const useWorkouts = () => {
     isCompleting: completeWorkoutMutation.isPending,
     toggleExerciseCompletion: toggleExerciseMutation.mutateAsync,
     isTogglingExercise: toggleExerciseMutation.isPending,
+    swapExercise: swapExerciseMutation.mutateAsync,
+    isSwappingExercise: swapExerciseMutation.isPending,
+    regenerateWorkout: regenerateWorkoutMutation.mutateAsync,
+    isRegenerating: regenerateWorkoutMutation.isPending,
+    voteWorkout: voteWorkoutMutation.mutateAsync,
+    isVoting: voteWorkoutMutation.isPending,
   };
 };

@@ -65,6 +65,11 @@ model Goal {
   updatedAt   DateTime  @updatedAt
 }
 
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
 model Workout {
   id            String    @id @default(cuid())
   userId        String
@@ -75,6 +80,8 @@ model Workout {
   workoutDate   DateTime  @default(now())
   notes         String?
   completed     Boolean   @default(false)
+  vote          VoteType?
+  feedback      String?   // user feedback for regenerating workout
   exercises     Exercise[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -93,6 +100,7 @@ model Exercise {
   locationType LocationType
   completed    Boolean      @default(false)
   completedAt  DateTime?
+  votedDown    Boolean      @default(false)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }

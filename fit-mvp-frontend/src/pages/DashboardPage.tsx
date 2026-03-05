@@ -9,13 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Label } from '../components/ui/label';
 import WorkoutCard from '../components/workout/WorkoutCard';
 import { 
-  Dumbbell, 
   Target, 
   Trophy, 
   Flame, 
   Calendar, 
   TrendingUp,
-  PlusCircle,
   Clock,
   Home,
   Building2,
@@ -38,7 +36,11 @@ const DashboardPage = () => {
     generateWorkout, 
     completeWorkout,
     toggleExerciseCompletion,
-    isGenerating 
+    swapExercise,
+    regenerateWorkout,
+    voteWorkout,
+    isGenerating,
+    isRegenerating 
   } = useWorkouts();
   const { stats: userStats } = useUserStats();
   const { activeGoals } = useGoals();
@@ -89,6 +91,35 @@ const DashboardPage = () => {
       await toggleExerciseCompletion({ workoutId, exerciseId, completed });
     } catch (error) {
       console.error('Failed to toggle exercise:', error);
+    }
+  };
+
+  const handleSwapExercise = async (workoutId: string, exerciseId: string) => {
+    try {
+      await swapExercise({ workoutId, exerciseId, locationType, focusArea });
+    } catch (error) {
+      console.error('Failed to swap exercise:', error);
+    }
+  };
+
+  const handleRegenerateWorkout = async (workoutId: string, feedback: string, locationTypeParam?: string, focusAreaParam?: string) => {
+    try {
+      await regenerateWorkout({ 
+        workoutId, 
+        feedback, 
+        locationType: locationTypeParam || locationType, 
+        focusArea: focusAreaParam || focusArea 
+      });
+    } catch (error) {
+      console.error('Failed to regenerate workout:', error);
+    }
+  };
+
+  const handleVoteWorkout = async (workoutId: string, vote: 'UPVOTE' | 'DOWNVOTE') => {
+    try {
+      await voteWorkout({ workoutId, vote });
+    } catch (error) {
+      console.error('Failed to vote:', error);
     }
   };
 
@@ -167,23 +198,30 @@ const DashboardPage = () => {
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Current Workout Section */}
+        {/* Main Section */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <h2 className="text-lg md:text-2xl font-bold text-gray-900">
-              {currentWorkout ? 'Current Workout' : 'No Active Workout'}
-            </h2>
-            {!currentWorkout && (
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-                <div className="w-full sm:w-36">
-                  <Label htmlFor="location" className="sr-only">Location</Label>
+          {/* Generate New Workout Card - Always Visible */}
+          <Card className="touch-manipulation">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <Sparkles className="h-5 w-5 text-purple-500" />
+                Generate New Workout
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Get a personalized workout based on your goals and fitness level
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="location" className="text-sm md:text-base">Location Preference</Label>
                   <Select 
                     value={locationType} 
                     onValueChange={(value: LocationType) => setLocationType(value)}
                     disabled={isGenerating}
                   >
                     <SelectTrigger className="h-10 md:h-11">
-                      <SelectValue placeholder="Location" />
+                      <SelectValue placeholder="Select location preference" />
                     </SelectTrigger>
                     <SelectContent>
                       {locationOptions.map((option) => {
@@ -199,16 +237,20 @@ const DashboardPage = () => {
                       })}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs md:text-sm text-gray-500">
+                    Choose where you'll be working out for equipment-specific exercises
+                  </p>
                 </div>
-                <div className="w-full sm:w-40">
-                  <Label htmlFor="focus-area" className="sr-only">Focus Area</Label>
+
+                <div className="space-y-2">
+                  <Label htmlFor="focus-area" className="text-sm md:text-base">Focus Area (Optional)</Label>
                   <Select 
                     value={focusArea} 
                     onValueChange={(value: FocusArea) => setFocusArea(value)}
                     disabled={isGenerating}
                   >
                     <SelectTrigger className="h-10 md:h-11">
-                      <SelectValue placeholder="Focus (optional)" />
+                      <SelectValue placeholder="Select focus area" />
                     </SelectTrigger>
                     <SelectContent>
                       {focusAreaOptions.map((option) => {
@@ -224,101 +266,45 @@ const DashboardPage = () => {
                       })}
                     </SelectContent>
                   </Select>
-                </div>
-                <Button 
-                  onClick={handleGenerateWorkout} 
-                  disabled={isGenerating}
-                  className="flex items-center gap-2 h-10 md:h-11"
-                >
-                  <PlusCircle className="h-4 w-4" />
-                  {isGenerating ? 'Generating...' : 'Generate'}
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {currentWorkout ? (
-            <WorkoutCard 
-              workout={currentWorkout} 
-              onComplete={handleCompleteWorkout}
-              onStart={() => toast.info('Starting workout! (Feature in development)')}
-              onToggleExercise={handleToggleExercise}
-            />
-          ) : (
-            <Card className="touch-manipulation">
-              <CardContent className="pt-6">
-                <div className="text-center py-8 md:py-12">
-                  <Dumbbell className="h-12 w-12 md:h-16 md:w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">
-                    No active workout
-                  </h3>
-                  <p className="text-sm md:text-base text-gray-600 mb-6">
-                    Generate a personalized workout based on your goals and fitness level.
+                  <p className="text-xs md:text-sm text-gray-500">
+                    Target a specific area or let AI decide based on your goals
                   </p>
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-lg mx-auto">
-                    <div className="w-full sm:w-40">
-                      <Label htmlFor="location-mobile" className="sr-only">Location</Label>
-                      <Select 
-                        value={locationType} 
-                        onValueChange={(value: LocationType) => setLocationType(value)}
-                        disabled={isGenerating}
-                      >
-                        <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Location" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {locationOptions.map((option) => {
-                            const Icon = option.icon;
-                            return (
-                              <SelectItem key={option.value} value={option.value}>
-                                <div className="flex items-center gap-2">
-                                  <Icon className="h-4 w-4" />
-                                  <span>{option.label}</span>
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="w-full sm:w-44">
-                      <Label htmlFor="focus-area-mobile" className="sr-only">Focus Area</Label>
-                      <Select 
-                        value={focusArea} 
-                        onValueChange={(value: FocusArea) => setFocusArea(value)}
-                        disabled={isGenerating}
-                      >
-                        <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Focus (optional)" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {focusAreaOptions.map((option) => {
-                            const Icon = option.icon;
-                            return (
-                              <SelectItem key={option.value} value={option.value}>
-                                <div className="flex items-center gap-2">
-                                  <Icon className="h-4 w-4" />
-                                  <span>{option.label}</span>
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button 
-                      onClick={handleGenerateWorkout} 
-                      disabled={isGenerating}
-                      size="lg"
-                      className="flex items-center gap-2 w-full sm:w-auto h-11"
-                    >
-                      <PlusCircle className="h-4 w-4" />
-                      {isGenerating ? 'Generating...' : 'Generate Workout'}
-                    </Button>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              <Button 
+                onClick={handleGenerateWorkout} 
+                disabled={isGenerating || !!currentWorkout}
+                size="lg"
+                className="w-full flex items-center gap-2 h-12 text-base"
+                title={currentWorkout ? "You have an active workout. You can regenerate it below." : ""}
+              >
+                <Sparkles className="h-5 w-5" />
+                {isGenerating ? 'Generating...' : 'Generate Workout'}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Current Workout Card - If Exists */}
+          {currentWorkout && (
+            <>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <h2 className="text-lg md:text-2xl font-bold text-gray-900">
+                  Current Workout
+                </h2>
+              </div>
+              <WorkoutCard 
+                workout={currentWorkout} 
+                onComplete={handleCompleteWorkout}
+                onStart={() => toast.info('Starting workout! (Feature in development)')}
+                onToggleExercise={handleToggleExercise}
+                onSwapExercise={handleSwapExercise}
+                onRegenerate={handleRegenerateWorkout}
+                onVote={handleVoteWorkout}
+                isRegenerating={isRegenerating}
+                compact
+              />
+            </>
           )}
         </div>
 
@@ -378,8 +364,8 @@ const DashboardPage = () => {
             <CardContent className="space-y-2 md:space-y-3">
               <Link to="/workout" className="block">
                 <Button variant="outline" className="w-full justify-start h-10 md:h-11 text-sm md:text-base">
-                  <Dumbbell className="h-4 w-4 mr-2" />
-                  Generate New Workout
+                  <Calendar className="h-4 w-4 mr-2" />
+                  View Workout History
                 </Button>
               </Link>
               <Link to="/goals" className="block">
@@ -388,14 +374,6 @@ const DashboardPage = () => {
                   Manage Goals
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start h-10 md:h-11 text-sm md:text-base"
-                onClick={() => toast.info('Workout history coming soon!')}
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                View History
-              </Button>
             </CardContent>
           </Card>
 

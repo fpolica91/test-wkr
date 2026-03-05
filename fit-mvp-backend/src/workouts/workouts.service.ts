@@ -155,6 +155,149 @@ export class WorkoutsService {
     });
   }
 
+  async swapExercise(
+    userId: string,
+    workoutId: string,
+    exerciseId: string,
+    locationType?: LocationType,
+    focusArea?: FocusArea,
+  ) {
+    const workout = await this.findOne(userId, workoutId);
+    
+    const exercise = workout.exercises.find((ex) => ex.id === exerciseId);
+    if (!exercise) {
+      throw new NotFoundException(
+        `Exercise with ID ${exerciseId} not found in workout`,
+      );
+    }
+
+    const excludedExercises = workout.exercises
+      .filter((ex) => ex.id !== exerciseId)
+      .map((ex) => ex.name);
+
+    const newExerciseData = await this.aiWorkoutService.generateSingleExercise(
+      userId,
+      locationType,
+      focusArea,
+      excludedExercises,
+      exercise.name,
+    );
+
+    await this.prisma.exercise.update({
+      where: { id: exerciseId },
+      data: {
+        votedDown: true,
+      },
+    });
+
+    // Delete the old exercise and create a new one (swap)
+    await this.prisma.exercise.delete({
+      where: { id: exerciseId },
+    });
+
+    const newExercise = await this.prisma.exercise.create({
+      data: {
+        workoutId,
+        name: newExerciseData.name,
+        description: newExerciseData.description,
+        sets: newExerciseData.sets,
+        reps: newExerciseData.reps,
+        weight: newExerciseData.weight,
+        restTime: newExerciseData.restTime,
+        locationType: newExerciseData.locationType,
+      },
+    });
+
+    return this.findOne(userId, workoutId);
+  }
+
+  async regenerateWorkout(
+    userId: string,
+    workoutId: string,
+    feedback: string,
+    locationType?: LocationType,
+    focusArea?: FocusArea,
+  ) {
+    const workout = await this.findOne(userId, workoutId);
+    
+    await this.prisma.workout.update({
+      where: { id: workoutId },
+      data: {
+        feedback,
+      },
+    });
+
+    const votedDownExercises = workout.exercises
+      .filter((ex) => ex.votedDown)
+      .map((ex) => ex.name);
+
+    const newWorkoutData = await this.aiWorkoutService.generateWorkout(
+      userId,
+      locationType,
+      focusArea,
+      feedback,
+    );
+
+    const uniqueNewExercises = newWorkoutData.exercises.filter(
+      (ex) => !votedDownExercises.includes(ex.name),
+    );
+
+    await this.prisma.exercise.deleteMany({
+      where: { workoutId },
+    });
+
+    const updatedWorkout = await this.prisma.workout.update({
+      where: { id: workoutId },
+      data: {
+        name: newWorkoutData.name,
+        duration: newWorkoutData.duration,
+        caloriesBurned: newWorkoutData.caloriesBurned,
+        feedback: null,
+        exercises: {
+          create: uniqueNewExercises.map((ex) => ({
+            name: ex.name,
+            description: ex.description,
+            sets: ex.sets,
+            reps: ex.reps,
+            weight: ex.weight,
+            restTime: ex.restTime,
+            locationType: ex.locationType,
+          })),
+        },
+      },
+      include: { exercises: true },
+    });
+
+    return updatedWorkout;
+  }
+
+  async voteWorkout(
+    userId: string,
+    workoutId: string,
+    vote: 'UPVOTE' | 'DOWNVOTE',
+  ) {
+    await this.findOne(userId, workoutId);
+
+    const existingVote = await this.prisma.workout.findUnique({
+      where: { id: workoutId },
+      select: { vote: true },
+    });
+
+    if (existingVote?.vote === vote) {
+      return this.prisma.workout.update({
+        where: { id: workoutId },
+        data: { vote: null },
+        include: { exercises: true },
+      });
+    }
+
+    return this.prisma.workout.update({
+      where: { id: workoutId },
+      data: { vote },
+      include: { exercises: true },
+    });
+  }
+
   async remove(userId: string, id: string) {
     await this.findOne(userId, id);
     return this.prisma.workout.delete({

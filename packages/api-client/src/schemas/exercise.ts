@@ -14,6 +14,7 @@ const ExerciseBaseSchema = z.object({
   locationType: LocationTypeSchema,
   completed: z.boolean(),
   completedAt: z.string().datetime().optional(),
+  votedDown: z.boolean().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

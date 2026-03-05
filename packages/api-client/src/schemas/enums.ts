@@ -28,3 +28,6 @@ export const FocusAreaSchema = z.enum([
   'BASE_ON_GOALS_AND_LATEST_WORKOUTS',
 ]);
 export type FocusArea = z.infer<typeof FocusAreaSchema>;
+
+export const VoteTypeSchema = z.enum(['UPVOTE', 'DOWNVOTE']);
+export type VoteType = z.infer<typeof VoteTypeSchema>;

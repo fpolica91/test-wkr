@@ -51,6 +51,7 @@ export class AIWorkoutService {
     userId: string,
     locationType?: LocationType,
     focusArea?: FocusArea,
+    feedback?: string,
   ): Promise<WorkoutGenerationResult> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -92,6 +93,7 @@ export class AIWorkoutService {
       locationType,
       recentExercises,
       focusArea,
+      feedback,
     );
 
     const aiResponse = await this.callDeepSeekAPI(prompt);
@@ -104,6 +106,7 @@ export class AIWorkoutService {
     locationType?: LocationType,
     recentExercises: string[] = [],
     focusArea?: FocusArea,
+    feedback?: string,
   ): string {
     const goalDescriptions = goals
       .map(
@@ -116,8 +119,11 @@ export class AIWorkoutService {
       recentExercises.length > 0
         ? ` Recent exercises (avoid repeating these back-to-back): ${recentExercises.join(', ')}.`
         : '';
+    const feedbackText = feedback
+      ? ` User feedback for this workout: "${feedback}".`
+      : '';
 
-    return `You are a fitness coach. Generate a workout plan for a ${fitnessLevel} level user with goals: ${goalDescriptions}.${location}${recentExercisesText}
+    return `You are a fitness coach. Generate a workout plan for a ${fitnessLevel} level user with goals: ${goalDescriptions}.${location}${recentExercisesText}${feedbackText}
     
 The workout should include:
 1. A workout name
@@ -281,6 +287,137 @@ Ensure locationType matches one of: HOME, GYM, BOTH.`;
       console.error('Failed to parse AI response:', error);
       // Return mock data as fallback
       return JSON.parse(this.mockAIResponse()) as WorkoutGenerationResult;
+    }
+  }
+
+  async generateSingleExercise(
+    userId: string,
+    locationType?: LocationType,
+    focusArea?: FocusArea,
+    excludedExercises: string[] = [],
+    rejectedExercise?: string,
+  ): Promise<Exercise> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        goals: { where: { isActive: true } },
+        workouts: {
+          where: {
+            workoutDate: {
+              gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+            },
+          },
+          include: {
+            exercises: true,
+          },
+          orderBy: {
+            workoutDate: 'desc',
+          },
+          take: 5,
+        },
+      },
+    });
+
+    if (!user) {
+      throw new InternalServerErrorException('User not found');
+    }
+
+    const recentExercises = [
+      ...excludedExercises,
+      ...user.workouts.flatMap((w) => w.exercises.map((e) => e.name)),
+    ];
+
+    const prompt = this.buildSingleExercisePrompt(
+      user.fitnessLevel,
+      user.goals.map((g) => ({ goalType: g.goalType, targetValue: g.targetValue ?? undefined })),
+      locationType,
+      recentExercises,
+      focusArea,
+      rejectedExercise,
+    );
+
+    const aiResponse = await this.callDeepSeekAPI(prompt);
+    const result = this.parseSingleExerciseResponse(aiResponse);
+    return result;
+  }
+
+  private buildSingleExercisePrompt(
+    fitnessLevel: string,
+    goals: Array<{ goalType: string; targetValue?: number }>,
+    locationType?: LocationType,
+    recentExercises: string[] = [],
+    focusArea?: FocusArea,
+    rejectedExercise?: string,
+  ): string {
+    const goalDescriptions = goals
+      .map((g) => `${g.goalType}${g.targetValue ? ` (target: ${g.targetValue})` : ''}`)
+      .join(', ');
+
+    const location = locationType ? ` Location: ${locationType}.` : '';
+    const focus = focusArea && focusArea !== 'BASE_ON_GOALS_AND_LATEST_WORKOUTS' 
+      ? ` Focus area: ${focusArea}.` 
+      : '';
+    const recentExercisesText =
+      recentExercises.length > 0
+        ? ` Exercises to avoid (already done recently): ${recentExercises.join(', ')}.`
+        : '';
+    
+    const rejectedText = rejectedExercise
+      ? ` The user specifically REJECTED this exercise: "${rejectedExercise}". Do NOT recommend this exercise or any similar exercises.`
+      : '';
+
+    return `You are a fitness coach. Generate a single replacement exercise for a ${fitnessLevel} level user with goals: ${goalDescriptions}.${location}${focus}${recentExercisesText}${rejectedText}
+    
+The exercise should be different from recent exercises and MUST NOT be "${rejectedExercise || 'the rejected exercise'}".
+
+Return the response as a JSON object with this exact structure:
+{
+  "name": "Exercise Name",
+  "description": "Brief description of how to perform the exercise",
+  "sets": 3,
+  "reps": 10,
+  "weight": "bodyweight or light dumbbells",
+  "restTime": 60,
+  "locationType": "GYM"
+}
+
+Ensure locationType matches one of: HOME, GYM, BOTH.`;
+  }
+
+  private parseSingleExerciseResponse(aiResponse: string): Exercise {
+    try {
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      const jsonString = jsonMatch ? jsonMatch[0] : aiResponse;
+      const parsed: unknown = JSON.parse(jsonString);
+
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error('Invalid AI response structure');
+      }
+
+      const exercise = parsed as Exercise;
+      const sets = Math.max(1, Math.floor(Number(exercise.sets)) || 3);
+      const reps = Math.max(1, Math.floor(Number(exercise.reps)) || 10);
+
+      return {
+        name: String(exercise.name || 'Exercise'),
+        description: exercise.description ? String(exercise.description) : undefined,
+        sets,
+        reps,
+        weight: exercise.weight === null || exercise.weight === undefined ? null : String(exercise.weight),
+        restTime: exercise.restTime ? Math.max(0, Math.floor(Number(exercise.restTime))) : undefined,
+        locationType: String(exercise.locationType).toUpperCase() as LocationType,
+      };
+    } catch (error) {
+      console.error('Failed to parse AI response for single exercise:', error);
+      return {
+        name: 'Alternative Squat',
+        description: 'A great lower body exercise',
+        sets: 3,
+        reps: 12,
+        weight: 'bodyweight',
+        restTime: 60,
+        locationType: 'BOTH',
+      };
     }
   }
 }
