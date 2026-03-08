@@ -102,6 +102,16 @@ export class WorkoutsController {
     );
   }
 
+  @Get(':workoutId/exercises/:exerciseId')
+  getExercise(
+    @Request() req: AuthenticatedRequest,
+    @Param('workoutId') workoutId: string,
+    @Param('exerciseId') exerciseId: string,
+  ) {
+    const userId = req.user.id;
+    return this.workoutsService.getExercise(userId, workoutId, exerciseId);
+  }
+
   @Delete(':id')
   remove(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     const userId = req.user.id;

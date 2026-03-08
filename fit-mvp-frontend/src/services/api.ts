@@ -169,6 +169,10 @@ class ApiService {
     });
   }
 
+  async getExercise(workoutId: string, exerciseId: string) {
+    return this.request<ExerciseResponse>(`/api/workouts/${workoutId}/exercises/${exerciseId}`);
+  }
+
   // Weight tracking endpoints
   async getWeightEntries() {
     return this.request<WeightEntryListResponse>('/api/weight');

@@ -141,13 +141,14 @@ const WorkoutPage = () => {
                 />
               ))}
               {completedWorkouts.length > 5 && (
-                <button 
+                <Button 
+                  variant="ghost"
                   onClick={() => toast.info('Full workout history coming soon!')}
-                  className="w-full py-3 text-sm text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1"
+                  className="w-full text-blue-600 hover:text-blue-800"
                 >
                   View all {completedWorkouts.length} workouts
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
               )}
             </div>
           ) : (

@@ -115,6 +115,9 @@ export class AIWorkoutService {
       )
       .join(', ');
     const location = locationType ? ` Location: ${locationType}.` : '';
+    const focus = focusArea && focusArea !== 'BASE_ON_GOALS_AND_LATEST_WORKOUTS'
+      ? ` Focus area: ${focusArea}.`
+      : '';
     const recentExercisesText =
       recentExercises.length > 0
         ? ` Recent exercises (avoid repeating these back-to-back): ${recentExercises.join(', ')}.`
@@ -123,7 +126,7 @@ export class AIWorkoutService {
       ? ` User feedback for this workout: "${feedback}".`
       : '';
 
-    return `You are a fitness coach. Generate a workout plan for a ${fitnessLevel} level user with goals: ${goalDescriptions}.${location}${recentExercisesText}${feedbackText}
+    return `You are a fitness coach. Generate a workout plan for a ${fitnessLevel} level user with goals: ${goalDescriptions}.${location}${focus}${recentExercisesText}${feedbackText}
     
 The workout should include:
 1. A workout name

@@ -150,9 +150,8 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal, onEdit, onDelete, onToggleAct
       <CardFooter className="flex flex-col sm:flex-row justify-between gap-2 border-t pt-4">
         <Button
           variant="outline"
-          size="sm"
           onClick={() => onToggleActive(goal.id, !goal.isActive)}
-          className="w-full sm:w-auto h-9 text-xs md:text-sm order-2 sm:order-1"
+          className="w-full sm:w-auto order-2 sm:order-1"
         >
           {goal.isActive ? 'Pause' : 'Activate'}
         </Button>
@@ -160,20 +159,19 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal, onEdit, onDelete, onToggleAct
         <div className="flex gap-2 w-full sm:w-auto order-1 sm:order-2">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => onEdit(goal)}
-            className="flex-1 sm:flex-initial items-center gap-1 h-9 text-xs md:text-sm"
+            className="flex-1 sm:flex-initial"
           >
-            <Edit className="h-3.5 w-3.5" />
+            <Edit className="h-4 w-4" />
             <span>Edit</span>
           </Button>
           <Button
             variant="destructive"
-            size="sm"
             onClick={() => onDelete(goal.id)}
-            className="flex-1 sm:flex-initial items-center gap-1 h-9 text-xs md:text-sm"
+            className="flex-1 sm:flex-initial"
+            aria-label={`Delete goal: ${getGoalLabel(goal.goalType)}`}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-4 w-4" />
             <span>Delete</span>
           </Button>
         </div>

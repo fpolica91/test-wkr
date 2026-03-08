@@ -155,6 +155,31 @@ export class WorkoutsService {
     });
   }
 
+  async getExercise(userId: string, workoutId: string, exerciseId: string) {
+    const workout = await this.prisma.workout.findFirst({
+      where: {
+        id: workoutId,
+        userId,
+      },
+      include: {
+        exercises: true,
+      },
+    });
+
+    if (!workout) {
+      throw new NotFoundException(`Workout with ID ${workoutId} not found`);
+    }
+
+    const exercise = workout.exercises.find((ex) => ex.id === exerciseId);
+    if (!exercise) {
+      throw new NotFoundException(
+        `Exercise with ID ${exerciseId} not found in workout`,
+      );
+    }
+
+    return exercise;
+  }
+
   async swapExercise(
     userId: string,
     workoutId: string,

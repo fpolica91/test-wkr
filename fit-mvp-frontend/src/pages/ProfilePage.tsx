@@ -98,6 +98,8 @@ const ProfilePage = () => {
                   id="username"
                   value={user?.username || ''}
                   disabled
+                  readOnly
+                  aria-readonly="true"
                   className="bg-gray-50 h-10 md:h-11"
                 />
                 <p className="text-xs md:text-sm text-gray-500">

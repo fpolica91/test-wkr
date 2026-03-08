@@ -167,7 +167,7 @@ const WeightPage = () => {
               Log Weight
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="w-[90vw] max-w-md">
             <DialogHeader>
               <DialogTitle>{editingEntry ? 'Edit Weight Entry' : 'Log Weight'}</DialogTitle>
             </DialogHeader>
@@ -338,26 +338,27 @@ const WeightPage = () => {
               ) : (
                 <div className="space-y-3">
                   {sortedEntries.map((entry) => (
-                    <div key={entry.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-orange-50 p-3 rounded-lg">
+                    <div key={entry.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div className="bg-orange-50 p-2 sm:p-3 rounded-lg shrink-0">
                           <Scale className="h-5 w-5 text-orange-600" />
                         </div>
-                        <div>
-                           <div className="font-semibold text-lg">{formatWeight(entry.weight)}</div>
-                          <div className="text-sm text-gray-600">
+                        <div className="min-w-0">
+                           <div className="font-semibold text-base sm:text-lg">{formatWeight(entry.weight)}</div>
+                          <div className="text-sm text-gray-600 truncate">
                             {formatDate(new Date(entry.date))}
                             {entry.bodyFat && ` • ${entry.bodyFat.toFixed(1)}% body fat`}
                             {entry.notes && ` • ${entry.notes}`}
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 shrink-0">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEdit(entry)}
                           disabled={isMutating}
+                          aria-label={`Edit weight entry from ${formatDate(new Date(entry.date))}`}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -366,6 +367,7 @@ const WeightPage = () => {
                           size="sm"
                           onClick={() => handleDelete(entry.id)}
                           disabled={isMutating}
+                          aria-label={`Delete weight entry from ${formatDate(new Date(entry.date))}`}
                         >
                           <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
