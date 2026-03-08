@@ -4,11 +4,13 @@ import { Button } from '../components/ui/button';
 import { ArrowLeft, RotateCcw, CheckCircle, Clock, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../services/api';
+import { useWorkouts } from '../hooks/useWorkouts';
 import type { ExerciseResponse } from '@fitness/api-client';
 
 const ExercisePage = () => {
   const { workoutId, exerciseId } = useParams<{ workoutId: string; exerciseId: string }>();
   const navigate = useNavigate();
+  const { swapExercise, isSwappingExercise } = useWorkouts();
   const [exercise, setExercise] = useState<ExerciseResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -46,6 +48,16 @@ const ExercisePage = () => {
   if (!exercise) {
     return null;
   }
+
+  const handleSwap = async () => {
+    if (!workoutId || !exerciseId) return;
+    try {
+      await swapExercise({ workoutId, exerciseId });
+      navigate(-1);
+    } catch (error) {
+      console.error('Failed to swap exercise:', error);
+    }
+  };
 
   const handleToggle = () => {
     if (workoutId && exerciseId) {
@@ -134,10 +146,11 @@ const ExercisePage = () => {
           <Button
             variant="outline"
             className="flex-1 h-12 text-sm font-semibold touch-manipulation"
-            onClick={() => navigate(-1)}
+            onClick={handleSwap}
+            disabled={isSwappingExercise}
           >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Swap
+            <RotateCcw className={`h-4 w-4 mr-2 ${isSwappingExercise ? 'animate-spin' : ''}`} />
+            {isSwappingExercise ? 'Swapping...' : 'Swap'}
           </Button>
           <Button
             className={`flex-1 h-12 text-sm font-semibold touch-manipulation ${
